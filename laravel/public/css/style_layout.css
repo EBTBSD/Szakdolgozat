@@ -1,0 +1,62 @@
+html{
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    /* min-height: 100vh;
+    background: linear-gradient(135deg, #667eea, #764ba2, #6b8dd6, #8e54e9, #6b8dd6, #764ba2, #667eea);
+    background-size: 400% 400%;
+    animation-name: grad;
+    animation-duration: 8s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out; */
+
+
+    background: black;
+    height: 100%;
+    width: 100%;
+
+
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    color: wheat;
+    object-fit: contain;
+  }
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0; /* háttér alul */
+    width: 100%;
+  }
+
+.div_main {
+
+    z-index: 1;
+  }
+
+@keyframes grad {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+
+body{
+    width: 97%;
+    margin: 15px auto;
+    padding: 15px;
+    color: rgb(245, 222, 179);
+    text-shadow: 2px 2px rgb(61, 61, 61);
+}
+
+.div_body{
+
+    width: 95%;
+    margin: 3% auto;
+    /* border: 1px solid pink; */
+}
+
+#pipes{
+    position: fixed;;
+}
+
+
+

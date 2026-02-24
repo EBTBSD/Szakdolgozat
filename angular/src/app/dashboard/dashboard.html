@@ -1,0 +1,70 @@
+<app-navbar></app-navbar>
+<div class="dashboard-wrapper">
+  
+  <aside class="sidebar glass-panel">
+    <button class="btn-primary" (click)="openModal()">+ Új Kurzus</button>
+    
+    <div class="course-list">
+      <div class="course-card" *ngFor="let item of courses" 
+           [style.backgroundImage]="'url(' + item.course_img_path + ')'"
+           (click)="goToCourse(item.id)">
+        <div class="course-overlay">
+          <h3>{{ item.course_name }}</h3>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    
+    <div class="stats-grid">
+      <div class="stat-card glass-panel text-center">
+        <h2>Átlag</h2>
+        <div class="highlight-number">{{ stats.average }}</div>
+      </div>
+      
+      <div class="stat-card glass-panel text-center">
+        <h2>Feladatok</h2>
+        <div class="highlight-number">{{ stats.ass_perc }}%</div>
+      </div>
+      
+      <div class="stat-card glass-panel stat-details">
+        <p><span class="dot green"></span> Időben leadott: <b>{{ stats.ass_perc_suc }}</b></p>
+        <p><span class="dot red"></span> Elmulasztott: <b>{{ stats.ass_perc_fai }}</b></p>
+        <p><span class="dot yellow"></span> Későn leadott: <b>{{ stats.ass_perc_out }}</b></p>
+        <p><span class="dot blue"></span> Még nem leadott: <b>{{ stats.ass_perc_need }}</b></p>
+      </div>
+    </div>
+
+    <div class="lists-grid">
+      <div class="list-card glass-panel">
+        <h2>Események</h2>
+        <div class="list-item">Esemény #1</div>
+        <div class="list-item">Esemény #2</div>
+        <div class="list-item">Esemény #3</div>
+      </div>
+      
+      <div class="list-card glass-panel">
+        <h2>Aktuális Feladatok</h2>
+        <div class="list-item">Feladat #1</div>
+        <div class="list-item">Feladat #2</div>
+        <div class="list-item">Feladat #3</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" *ngIf="isModalOpen">
+  <div class="modal-content glass-panel">
+    <span class="close-btn" (click)="closeModal()">&times;</span>
+    <h2>Új kurzus létrehozása</h2>
+    
+    <form (ngSubmit)="createCourse()">
+      <input class="input-glass" type="text" name="course_name" [(ngModel)]="newCourse.course_name" placeholder="Kurzus Neve (pl. Történelem)" required>
+      <input class="input-glass" type="text" name="course_type" [(ngModel)]="newCourse.course_type" placeholder="Kurzus Típusa (pl. Humán)" required>
+      
+      <input class="input-glass" type="text" name="course_users" [(ngModel)]="newCourse.course_users" placeholder="Résztvevők (vesszővel elválasztva)">
+      <button class="btn-primary" type="submit" style="margin-top: 15px;">Létrehozás</button>
+    </form>
+  </div>
+</div>

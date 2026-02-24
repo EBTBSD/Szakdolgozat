@@ -1,0 +1,36 @@
+<app-navbar></app-navbar>
+
+<div class="course-wrapper">
+  
+  <div class="course-header glass-panel">
+    <button class="btn-back" (click)="goBack()">← Vissza a Dashboardra</button>
+    <div class="header-title">
+      <h2>Kurzus Részletei (ID: {{ courseId }})</h2>
+      <button class="btn-primary">+ Új Feladat</button>
+    </div>
+  </div>
+
+  <div class="assignments-grid">
+    
+    <div class="assignment-card glass-panel" *ngFor="let task of assignments" 
+         [ngClass]="{'status-done': task.assignment_finnished === 2, 'status-fail': task.assignment_finnished === 1}">
+      
+      <div class="card-header">
+        <h3>{{ task.assignment_name }}</h3>
+        <span class="badge">{{ task.assignment_type }}</span>
+      </div>
+      
+      <div class="card-body">
+        <p><b>Pontszám:</b> {{ task.assignment_succed_point }} / {{ task.assignment_max_point }}</p>
+        <p><b>Osztályzat:</b> {{ task.assignment_grade }} / 5</p>
+      </div>
+
+      <div class="card-footer">
+        <span *ngIf="task.assignment_finnished === 2">Időben Leadva</span>
+        <span *ngIf="task.assignment_finnished === 1">Nem lett teljesítve</span>
+        <span *ngIf="task.assignment_finnished === 0">Későn Leadva</span>
+      </div>
+    </div>
+
+  </div>
+</div>

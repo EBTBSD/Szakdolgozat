@@ -1,0 +1,119 @@
+<?php
+
+namespace App\Http\Controllers\auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Models\User;
+use App\Models\UsersModel;
+use App\Models\CoursesModel;
+use App\Models\AssignmentModel;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class AuthController extends Controller
+{
+    // A show_form() függvényt kitöröltük, mert az Angular jeleníti meg az űrlapot!
+
+    public function login_store(LoginRequest $request)
+    {
+        if(Auth::attempt($request->validated()))
+        {
+            $user = Auth::user();
+            
+            // --- A TE EREDETI SZÁMÍTÁSAID ---
+            $courses = CoursesModel::all();
+            $assigment = AssignmentModel::all();
+            $average = DB::table('assignment')->avg('assignment_grade');
+            
+            $grades = [];
+            $ass_perc_arr = [];
+            $ass_perc_suc = 0;
+            $ass_perc_fai = 0;
+            $ass_perc_out = 0;
+            $ass_perc_nye = 0;
+            $ass_perc = 0;
+
+            foreach ($assigment as $item) {
+                if($item->user_username == $user->username){
+                    $grades[] = $item->assignment_grade;
+                    $ass_perc_arr[] = $item->assignment_finnished;
+                }
+            }
+            if(count($ass_perc_arr) > 0){
+                for ($i=0; $i < count($ass_perc_arr); $i++) {
+                    if($ass_perc_arr[$i] == 2){ $ass_perc_suc++; }
+                    elseif($ass_perc_arr[$i] == 1){ $ass_perc_fai++; }
+                    elseif($ass_perc_arr[$i] == 0){ $ass_perc_nye++; }
+                }
+                $ass_perc = ($ass_perc_suc / count($ass_perc_arr))*100;
+            } else {
+                $ass_perc = 0;
+            }
+
+            if(count($grades) != 0){
+                $average = array_sum($grades) / count($grades);
+            } else {
+                $average = 0;
+            }
+            // --- SZÁMÍTÁSOK VÉGE ---
+
+            // Generálunk egy belépőkártyát (Tokent) az Angularnak!
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            // JSON-ben küldjük vissza az összes adatot és a tokent
+            return response()->json([
+                'status' => 'Siker',
+                'token' => $token,
+                'user' => $user,
+                'stats' => [ // Szép, strukturált mappába rakjuk a statisztikát
+                    'courses' => $courses,
+                    'assigment' => $assigment,
+                    'average' => $average,
+                    'ass_perc' => $ass_perc,
+                    'ass_perc_suc' => $ass_perc_suc,
+                    'ass_perc_fai' => $ass_perc_fai,
+                    'ass_perc_out' => $ass_perc_out,
+                    'ass_perc_nye' => $ass_perc_nye,
+                ]
+            ], 200);
+        }
+        else
+        {
+            // Ha rossz a jelszó, Hibaüzenetet küldünk!
+            return response()->json([
+                'status' => 'Hiba',
+                'message' => 'Hibás felhasználónév vagy jelszó!'
+            ], 401);
+        }
+    }
+
+    public function register_store(RegisterRequest $request)
+    {
+        // Felhasználó létrehozása
+        $u = User::create($request->validated());
+        
+        // Generálunk neki is egy Tokent (hogy egyből be is legyen lépve)
+        $token = $u->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'status' => 'Siker',
+            'token' => $token,
+            'user' => $u,
+            'message' => 'Sikeres regisztráció!'
+        ], 201);
+    }
+
+    public function logout(Request $request)
+    {
+        // Töröljük a belépőkártyáját a rendszerből
+        $request->user()->currentAccessToken()->delete();
+        
+        return response()->json([
+            'status' => 'Siker',
+            'message' => 'Sikeres kijelentkezés!'
+        ], 200);
+    }
+}

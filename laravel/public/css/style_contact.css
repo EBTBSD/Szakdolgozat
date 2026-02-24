@@ -1,0 +1,10 @@
+.div_contact{
+    background: rgba(245, 222, 179,0.15);
+    backdrop-filter: blur(10px);
+    margin: auto;
+    padding: 2%;
+    width: fit-content;
+    text-align: center;
+    border-bottom: 1px solid wheat;
+    border-radius: 5px;
+}

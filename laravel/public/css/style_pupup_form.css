@@ -1,0 +1,130 @@
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    z-index: 2;
+}
+
+.modal-content {
+backdrop-filter: blur(10px);
+margin: 15% auto;
+padding: 20px;
+border-bottom: 1px solid wheat;
+width: fit-content;
+text-align: center;
+}
+
+
+.close {
+color: wheat;
+float: right;
+font-size: 28px;
+font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+color: wheat;
+text-decoration: none;
+cursor: pointer;
+}
+
+.div_form_modal_input{
+display: inline-table;
+vertical-align: top;
+}
+
+.div_form_modal_lbl{
+display: inline-table;
+vertical-align: top;
+
+}
+
+
+.input_form_modal{
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid wheat;
+    color: wheat;
+    padding: none;
+    margin: 4%;
+    border-radius: 5px;
+
+}
+
+.lbl_form_modal{
+    border-bottom: 1px solid wheat;
+    color: wheat;
+    margin: 3%;
+    border-radius: 5px;
+}
+
+.lbl_form_modal_new{
+    width: 202%;
+
+}
+
+.btn_form_modal{
+    width: 50%;
+    height: 50%;
+    background-color: rgba(245, 222, 179,0.15);
+    color: wheat;
+    border: none;
+    border-bottom: 1px solid wheat;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 3%;
+    backdrop-filter: blur(5px);
+    border-radius: 5px;
+}
+
+.btn_form_modal:hover{
+    animation: btn_newCourse_anim 2s ease infinite;
+}
+
+@keyframes btn_newCourse_anim{
+    0%{
+        color: wheat;
+    }
+    50%{
+        background-color: rgba(245, 222, 179,0.05);
+    }
+    100%{
+        color: wheat;
+    }
+}
+
+.div_group_modal{
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 10px;
+}
+
+.div_group_modal_new{
+    justify-content: center;
+    /* border: 1px solid salmon; */
+}
+
+.checkbox_form_modal[type="radio"] {
+
+    width: 200px;
+    height: 100px;
+    appearance: none;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: 1px solid wheat;
+    border-radius: 5px;
+    cursor: pointer;
+}
+input[type="radio"]:checked {
+    filter: blur(2px);
+    border: 1px solid red;
+}
+

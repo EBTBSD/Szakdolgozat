@@ -1,0 +1,116 @@
+body {
+    background: linear-gradient(135deg, #1f4037, #99f2c8);
+    background-size: 400% 400%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    min-height: 100vh;
+    margin: 0;
+}
+.div_auth {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 60px 20px;
+}
+.glass-panel {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 380px;
+}
+
+.glass-panel h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.input_auth {
+    width: 100%;
+    padding: 14px 15px;
+    margin-bottom: 15px;
+    background: rgba(0, 0, 0, 0.15); 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.input_auth::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.input_auth:focus {
+    background: rgba(0, 0, 0, 0.25);
+    border-color: #00d2ff;
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+}
+
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+.half-width {
+    width: 50%;
+}
+
+.button_auth {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.button_auth:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.message-box {
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.message-box.error {
+    background-color: rgba(255, 77, 77, 0.2);
+    color: #ffb3b3;
+    border: 1px solid rgba(255, 77, 77, 0.3);
+}
+
+.message-box.success {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #b3ffb6;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

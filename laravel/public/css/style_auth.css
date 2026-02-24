@@ -1,0 +1,84 @@
+.h1_auth{
+    width: 50%;
+}
+.div_auth{
+    margin: auto;
+    text-align: center;
+    width: 75%;
+
+}
+.div_reg_auth, .div_log_auth{
+    display:inline-block;
+    margin: 1% auto;
+    padding: 1%;
+    text-align: center;
+    /* background-color: rgba(17, 21, 60, 0.7); */
+    backdrop-filter: blur(15px);
+    border-radius: 8px;
+    width: 30%;
+    height: 330px;
+    vertical-align: top;
+
+}
+
+.input_auth{
+    background-color: transparent;
+    margin: 1%;
+    color: rgb(245, 222, 179);
+    border: none;
+    border-bottom: 1px solid wheat;
+    /* border: 1px solid rgb(159, 21, 21); */
+    padding: 1%;
+    font-size: 18px;
+    width: 95%;
+    border-radius: 5px;
+}
+
+input::placeholder {
+    /* color: rgb(128, 20, 20); */
+    color: rgba(77, 71, 71, 1);
+    opacity: 0.7;
+  }
+
+.button_auth{
+    background-color: transparent;
+    margin: 5% 1% 1% 1%;
+    font-weight: bold;
+    /* border: 1px solid rgb(159, 21, 21);
+    color: rgb(159, 21, 21); */
+    color: rgba(77, 71, 71, 0.7);
+    border: none;
+    border-bottom: 1px solid wheat;
+    padding: 1%;
+    font-size: 18px;
+    width: 98%;
+    border-radius: 5px;
+}
+
+.button_auth:hover{
+    /* background: linear-gradient(135deg, #667eea, #764ba2, #6b8dd6, #8e54e9);
+    background-size: 400% 400%; */
+    animation: auth_btn_anim 2s ease infinite;
+}
+
+@keyframes auth_btn_anim{
+    0%{
+        border-color: wheat;
+    }
+    50%{
+        background-color: wheat;
+        border-bottom: rgba(17, 21, 60, 1);
+    }
+    100%{
+        order-color: wheat;
+    }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%;
+        color: whitesmoke;}
+    100% { background-position: 0% 50%;
+}
+  }
+

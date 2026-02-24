@@ -1,0 +1,38 @@
+.div_all_course_div{
+    text-align: center;
+    display:inline-block;
+    border-right: 1px solid wheat;
+    z-index: 1;
+}
+
+.div_course_foreach{
+    display:inline-block;
+    margin: 1% auto;
+    text-align: Left;
+    color: wheat;
+    width: 95%;
+    aspect-ratio: 2;
+    background-size:cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    overflow: hidden;
+    border-radius: 5px;
+}
+.image_course_foreach{
+    height: 10%;
+}
+
+.div_course_inside{
+    background-color: rgba(245, 222, 179,0.15);
+    backdrop-filter: blur(5px);
+    border-bottom: 3px solid black;
+    overflow: hidden;
+    height: fit-content;
+    padding: 1%;
+    height: 45px;
+    width: 100%;
+
+}
+
+
+
