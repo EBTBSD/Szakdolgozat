@@ -4,7 +4,6 @@
   align-items: center;
   padding: 10px 30px;
   margin-bottom: 20px;
-  /* Kicsit vékonyabb üveg, hogy ne vonja el a figyelmet */
   background: rgba(255, 255, 255, 0.05); 
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);

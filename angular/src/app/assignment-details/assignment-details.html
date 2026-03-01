@@ -1,0 +1,63 @@
+<div class="course-wrapper" *ngIf="assignment">
+  
+  <div class="course-header glass-panel">
+    <button class="btn-back" (click)="goBack()">← Vissza</button>
+      <div style="margin-top: 20px; display: flex; gap: 10px;">
+    <button class="btn-primary" (click)="toggleEdit()">Szerkesztés</button>
+    <button style="background-color: tomato; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;" (click)="deleteAssignment()">🗑️ Törlés</button>
+  </div>
+  <div class="glass-panel" *ngIf="isEditing" style="margin-top: 20px; padding: 20px;">
+    <h3>Feladat Módosítása</h3>
+    <form (ngSubmit)="saveChanges()">
+      
+      <div class="form-group mb-3">
+        <label>Feladat Neve:</label>
+        <input type="text" class="form-control" name="name" [(ngModel)]="assignment.assignment_name" required>
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Max Pontszám:</label>
+        <input type="number" class="form-control" name="max_point" [(ngModel)]="assignment.assignment_max_point" required>
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Határidő:</label>
+        <input type="datetime-local" class="form-control" name="deadline" [(ngModel)]="assignment.assignment_deadline" required>
+      </div>
+
+      <div class="form-group mb-3">
+        <label>Láthatóság:</label>
+        <select class="form-control" name="accessible" [(ngModel)]="assignment.assignment_accessible" required>
+          <option [value]="1">Igen (Látható)</option>
+          <option [value]="0">Nem (Rejtett)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-primary">Változtatások Mentése</button>
+      <button type="button" class="btn-back" (click)="toggleEdit()">Mégsem</button>
+    </form>
+  </div>
+    <div class="header-title">
+      <h2>{{ assignment.assignment_name }}</h2>
+      <span class="badge">{{ assignment.assignment_type }}</span>
+    </div>
+  </div>
+
+  <div class="glass-panel" style="margin-top: 20px; padding: 20px;">
+    <h3>A feladat részletei</h3>
+    <hr>
+    <p><b>Határidő:</b> {{ assignment.assignment_deadline }}</p>
+    <p><b>Maximális Pontszám:</b> {{ assignment.assignment_max_point }} pont</p>
+    <p><b>Láthatóság a diákoknak:</b> 
+      <span *ngIf="assignment.assignment_accessible == 1" style="color: limegreen;">Látható</span>
+      <span *ngIf="assignment.assignment_accessible == 0" style="color: tomato;">Rejtett</span>
+    </p>
+  </div>
+
+  </div>
+
+<div class="course-wrapper" *ngIf="!assignment">
+  <div class="glass-panel" style="text-align: center; padding: 40px;">
+    <h2>Adatok betöltése...</h2>
+  </div>
+</div>

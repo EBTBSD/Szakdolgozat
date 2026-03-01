@@ -8,10 +8,10 @@ class AssignmentModel extends Model
 {
     protected $table = 'assignment';
     protected $primaryKey = 'id';
-    protected $keyType = 'bigint';
     public $incremented = true;
 
     protected $fillable = [
+        'course_id',
         'creator_username',
         'user_username',
         'assignment_name',

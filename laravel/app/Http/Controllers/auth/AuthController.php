@@ -15,15 +15,11 @@ use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
-    // A show_form() függvényt kitöröltük, mert az Angular jeleníti meg az űrlapot!
-
     public function login_store(LoginRequest $request)
     {
         if(Auth::attempt($request->validated()))
         {
             $user = Auth::user();
-            
-            // --- A TE EREDETI SZÁMÍTÁSAID ---
             $courses = CoursesModel::all();
             $assigment = AssignmentModel::all();
             $average = DB::table('assignment')->avg('assignment_grade');
@@ -58,17 +54,14 @@ class AuthController extends Controller
             } else {
                 $average = 0;
             }
-            // --- SZÁMÍTÁSOK VÉGE ---
 
-            // Generálunk egy belépőkártyát (Tokent) az Angularnak!
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            // JSON-ben küldjük vissza az összes adatot és a tokent
             return response()->json([
                 'status' => 'Siker',
                 'token' => $token,
                 'user' => $user,
-                'stats' => [ // Szép, strukturált mappába rakjuk a statisztikát
+                'stats' => [
                     'courses' => $courses,
                     'assigment' => $assigment,
                     'average' => $average,
@@ -82,7 +75,6 @@ class AuthController extends Controller
         }
         else
         {
-            // Ha rossz a jelszó, Hibaüzenetet küldünk!
             return response()->json([
                 'status' => 'Hiba',
                 'message' => 'Hibás felhasználónév vagy jelszó!'
@@ -92,10 +84,8 @@ class AuthController extends Controller
 
     public function register_store(RegisterRequest $request)
     {
-        // Felhasználó létrehozása
         $u = User::create($request->validated());
         
-        // Generálunk neki is egy Tokent (hogy egyből be is legyen lépve)
         $token = $u->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -108,7 +98,6 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Töröljük a belépőkártyáját a rendszerből
         $request->user()->currentAccessToken()->delete();
         
         return response()->json([

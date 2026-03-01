@@ -11,8 +11,8 @@ import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, NgZone, Hos
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: -1; /* Ez teszi az üveglapok MÖGÉ a hátteret */
-      pointer-events: none; /* Átengedi az egérkattintásokat az űrlapra */
+      z-index: -1;
+      pointer-events: none;
     }
   `]
 })

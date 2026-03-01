@@ -6,13 +6,15 @@
     <button class="btn-back" (click)="goBack()">← Vissza a Dashboardra</button>
     <div class="header-title">
       <h2>Kurzus Részletei (ID: {{ courseId }})</h2>
-      <button class="btn-primary">+ Új Feladat</button>
+      <button class="btn-primary" (click)="openModal()">+ Új Feladat</button>
     </div>
   </div>
 
   <div class="assignments-grid">
     
     <div class="assignment-card glass-panel" *ngFor="let task of assignments" 
+         [routerLink]="['/assignment', task.id]" 
+         style="cursor: pointer;"
          [ngClass]="{'status-done': task.assignment_finnished === 2, 'status-fail': task.assignment_finnished === 1}">
       
       <div class="card-header">
@@ -34,3 +36,40 @@
 
   </div>
 </div>
+<div class="modal-backdrop" *ngIf="isModalOpen">
+    <div class="modal-content glass-panel">
+      <span class="close-btn" (click)="closeModal()">&times;</span>
+      <h2>Új feladat kiírása</h2>
+      
+      <form (ngSubmit)="createAssignment()">
+        <div class="form-group">
+          <label>Feladat Neve</label>
+          <input class="input-glass" type="text" name="assignment_name" [(ngModel)]="newAssignment.assignment_name" placeholder="pl. Beadandó Esszé" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Típus</label>
+          <input class="input-glass" type="text" name="assignment_type" [(ngModel)]="newAssignment.assignment_type" placeholder="pl. Teszt" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Maximális Pontszám</label>
+          <input class="input-glass" type="number" name="assignment_max_point" [(ngModel)]="newAssignment.assignment_max_point" required>
+        </div>
+        <div class="form-group mb-3">
+  <label>Határidő:</label>
+  <input type="datetime-local" class="form-control" name="assignment_deadline" [(ngModel)]="newAssignment.assignment_deadline" required>
+</div>
+
+<div class="form-group mb-3">
+  <label>Látható a diákok számára?</label>
+  <select class="form-control" name="assignment_accessible" [(ngModel)]="newAssignment.assignment_accessible" required>
+    <option value="1">Igen (Azonnal látható)</option>
+    <option value="0">Nem (Rejtett)</option>
+  </select>
+</div>
+        
+        <button type="submit" class="btn-primary btn-full">Feladat Mentése</button>
+      </form>
+    </div>
+  </div>
