@@ -124,7 +124,6 @@ class UrlGenerator implements UrlGeneratorContract
      * @param  \Illuminate\Routing\RouteCollectionInterface  $routes
      * @param  \Illuminate\Http\Request  $request
      * @param  string|null  $assetRoot
-     * @return void
      */
     public function __construct(RouteCollectionInterface $routes, Request $request, $assetRoot = null)
     {
@@ -384,6 +383,8 @@ class UrlGenerator implements UrlGeneratorContract
      *
      * @param  mixed  $parameters
      * @return void
+     *
+     * @throws \InvalidArgumentException
      */
     protected function ensureSignedRouteParametersAreNotReserved($parameters)
     {
@@ -539,20 +540,8 @@ class UrlGenerator implements UrlGeneratorContract
      */
     public function toRoute($route, $parameters, $absolute)
     {
-        $parameters = Collection::wrap($parameters)->map(function ($value, $key) use ($route) {
-            return $value instanceof UrlRoutable && $route->bindingFieldFor($key)
-                    ? $value->{$route->bindingFieldFor($key)}
-                    : $value;
-        })->all();
-
-        array_walk_recursive($parameters, function (&$item) {
-            if ($item instanceof BackedEnum) {
-                $item = $item->value;
-            }
-        });
-
         return $this->routeUrl()->to(
-            $route, $this->formatParameters($parameters), $absolute
+            $route, $parameters, $absolute
         );
     }
 
@@ -850,7 +839,7 @@ class UrlGenerator implements UrlGeneratorContract
         $this->cachedRoot = null;
         $this->cachedScheme = null;
 
-        tap(optional($this->routeGenerator)->defaultParameters ?: [], function ($defaults) {
+        tap($this->routeGenerator?->defaultParameters ?: [], function ($defaults) {
             $this->routeGenerator = null;
 
             if (! empty($defaults)) {
