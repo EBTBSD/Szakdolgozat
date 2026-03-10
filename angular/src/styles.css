@@ -1,5 +1,4 @@
 body {
-    /* Egy modern, sötét háttér, amin az üveg tökéletesen mutat */
     background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     background-attachment: fixed;
     margin: 0;

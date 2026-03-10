@@ -39,6 +39,7 @@ export class AssignmentDetailsComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           this.assignment = res.assignment;
+          this.loadQuestions();
         },
         error: (err) => {
           console.error('Hiba a feladat betöltésekor!', err);
@@ -90,5 +91,111 @@ export class AssignmentDetailsComponent implements OnInit {
           alert('Nem sikerült a mentés!');
         }
       });
+  }
+  questions: any[] = [];
+  isAddingQuestion: boolean = false;
+  newQuestion: any = {
+    question_text: '',
+    question_type: 'multiple_choice',
+    question_points: 1
+  };
+
+  loadQuestions() {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+    this.http.get(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}/questions`, { headers })
+      .subscribe({
+        next: (res: any) => { this.questions = res.questions; },
+        error: (err) => { console.error('Hiba a kérdések betöltésekor!', err); }
+      });
+  }
+
+  toggleAddQuestion() {
+    this.isAddingQuestion = !this.isAddingQuestion;
+  }
+
+  saveNewQuestion() {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+    this.http.post(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}/questions`, this.newQuestion, { headers })
+      .subscribe({
+        next: (res: any) => {
+          alert('Kérdés sikeresen hozzáadva!');
+          this.questions.push(res.question);
+          this.isAddingQuestion = false;
+          this.newQuestion = { question_text: '', question_type: 'multiple_choice', question_points: 1 };
+        },
+        error: (err) => {
+          console.error('Hiba a kérdés mentésekor!', err);
+          alert('Nem sikerült hozzáadni a kérdést.');
+        }
+      });
+  }
+  activeQuestionIdForAnswer: number | null = null;
+  newAnswer: any = { answer_text: '', is_correct: false };
+  toggleAddAnswer(questionId: number) {
+    if (this.activeQuestionIdForAnswer === questionId) {
+      this.activeQuestionIdForAnswer = null;
+    } else {
+      this.activeQuestionIdForAnswer = questionId;
+      this.newAnswer = { answer_text: '', is_correct: false };
+    }
+  }
+
+  saveNewAnswer(questionId: number) {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+    this.newAnswer.is_correct = this.newAnswer.is_correct ? 1 : 0;
+
+    this.http.post(`http://100.96.56.30:8000/api/questions/${questionId}/answers`, this.newAnswer, { headers })
+      .subscribe({
+        next: (res: any) => {
+          const qIndex = this.questions.findIndex(q => q.id === questionId);
+          if (qIndex > -1) {
+            if (!this.questions[qIndex].answers) this.questions[qIndex].answers = [];
+            this.questions[qIndex].answers.push(res.answer);
+          }
+          this.activeQuestionIdForAnswer = null;
+        },
+        error: (err) => {
+          console.error('Hiba a válasz mentésekor!', err);
+        }
+      });
+  }
+  
+  deleteQuestion(questionId: number) {
+    if (confirm('Biztosan törlöd ezt a kérdést? A hozzá tartozó válaszok is eltűnnek!')) {
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+      this.http.delete(`http://100.96.56.30:8000/api/questions/${questionId}`, { headers })
+        .subscribe({
+          next: () => {
+            this.questions = this.questions.filter(q => q.id !== questionId);
+          },
+          error: (err) => console.error('Hiba a kérdés törlésekor!', err)
+        });
+    }
+  }
+
+  deleteAnswer(questionId: number, answerId: number) {
+    if (confirm('Biztosan törlöd ezt a válaszlehetőséget?')) {
+      const token = localStorage.getItem('token');
+      const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+      this.http.delete(`http://100.96.56.30:8000/api/answers/${answerId}`, { headers })
+        .subscribe({
+          next: () => {
+            const qIndex = this.questions.findIndex(q => q.id === questionId);
+            if (qIndex > -1) {
+              this.questions[qIndex].answers = this.questions[qIndex].answers.filter((a: any) => a.id !== answerId);
+            }
+          },
+          error: (err) => console.error('Hiba a válasz törlésekor!', err)
+        });
+    }
   }
 }

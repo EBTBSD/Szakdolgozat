@@ -19,7 +19,6 @@ class MainController extends Controller
                                    ->orWhere('creator_username', $user->username)
                                    ->get();
             $assigment = AssignmentModel::where('user_username', $user->username)->get();
-            
             $grades = [];
             $ass_perc_arr = [];
             $ass_perc_suc = 0;
@@ -28,12 +27,10 @@ class MainController extends Controller
             $ass_perc_nye = 0;
             $ass_perc_need = 0;
             $ass_perc = 0;
-
             foreach ($assigment as $item) {
                 $grades[] = $item->assignment_grade;
                 $ass_perc_arr[] = $item->assignment_finnished;
             }
-
             if(count($ass_perc_arr) > 0){
                 for ($i=0; $i < count($ass_perc_arr); $i++) {
                     if($ass_perc_arr[$i] == 3){
@@ -53,7 +50,6 @@ class MainController extends Controller
             } else {
                 $ass_perc = 0;
             }
-
             if(count($grades) != 0){
                 $average = round(array_sum($grades) / count($grades), 2);
             } else {

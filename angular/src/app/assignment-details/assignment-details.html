@@ -53,8 +53,82 @@
       <span *ngIf="assignment.assignment_accessible == 0" style="color: tomato;">Rejtett</span>
     </p>
   </div>
+  <div class="glass-panel" style="margin-top: 30px; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h3>📝 Feladat Kérdései</h3>
+      <button class="btn-primary" (click)="toggleAddQuestion()">+ Új Kérdés</button>
+    </div>
+    <hr>
+
+    <div *ngIf="questions.length > 0">
+      <div *ngFor="let q of questions; let i = index" style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <p><b>{{ i + 1 }}. Kérdés ({{ q.question_points }} pont):</b></p>
+          <button style="background: transparent; color: tomato; border: 1px solid tomato; border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 12px;" (click)="deleteQuestion(q.id)">🗑️ Kérdés törlése</button>
+        </div>
+        <p>{{ q.question_text }}</p>
+        <small style="color: #ddd;">Típus: {{ q.question_type === 'essay' ? 'Kifejtős' : 'Feleletválasztós' }}</small>
+        <ul *ngIf="q.answers && q.answers.length > 0" style="list-style-type: none; padding-left: 0; margin-top: 10px;">
+        <li *ngFor="let a of q.answers" [ngStyle]="{'color': a.is_correct ? 'limegreen' : 'inherit'}" style="display: flex; justify-content: space-between; padding: 5px; background: rgba(0,0,0,0.1); margin-bottom: 3px; border-radius: 4px;">
+            <span>
+              <span *ngIf="a.is_correct">✔️</span>
+              <span *ngIf="!a.is_correct">❌</span>
+              {{ a.answer_text }}
+            </span>
+            <span style="cursor: pointer; color: tomato;" (click)="deleteAnswer(q.id, a.id)">🗑️</span>
+          </li>
+        </ul>
+
+        <button *ngIf="q.question_type === 'multiple_choice'" class="btn-primary" style="padding: 5px 10px; font-size: 12px; margin-top: 10px;" (click)="toggleAddAnswer(q.id)">
+          + Válaszlehetőség hozzáadása
+        </button>
+
+        <div *ngIf="activeQuestionIdForAnswer === q.id" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin-top: 10px;">
+          <div class="form-group mb-2">
+            <label>Válasz szövege:</label>
+            <input type="text" class="form-control" name="a_text" [(ngModel)]="newAnswer.answer_text" required>
+          </div>
+          <div class="form-group mb-2">
+            <label style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
+              <input type="checkbox" name="a_correct" [(ngModel)]="newAnswer.is_correct" style="width: 20px; height: 20px;"> 
+              <b>Ez a helyes válasz?</b>
+            </label>
+          </div>
+          <button class="btn-primary" style="padding: 5px 10px; font-size: 12px;" (click)="saveNewAnswer(q.id)">Mentés</button>
+          <button class="btn-back" style="padding: 5px 10px; font-size: 12px;" (click)="toggleAddAnswer(q.id)">Mégsem</button>
+        </div>
+      </div>
+    </div>
+    <p *ngIf="questions.length === 0" style="text-align: center; color: #ccc;">Még nincsenek kérdések ehhez a feladathoz.</p>
+
+    <div *ngIf="isAddingQuestion" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-top: 15px;">
+      <h4>Új Kérdés Felvitele</h4>
+      <form (ngSubmit)="saveNewQuestion()">
+        
+        <div class="form-group mb-3">
+          <label>Kérdés szövege:</label>
+          <textarea class="form-control" name="q_text" [(ngModel)]="newQuestion.question_text" rows="3" required></textarea>
+        </div>
+
+        <div class="form-group mb-3">
+          <label>Típus:</label>
+          <select class="form-control" name="q_type" [(ngModel)]="newQuestion.question_type" required>
+            <option value="multiple_choice">Feleletválasztós</option>
+          </select>
+        </div>
+
+        <div class="form-group mb-3">
+          <label>Érhető Pontszám:</label>
+          <input type="number" class="form-control" name="q_points" [(ngModel)]="newQuestion.question_points" min="1" required>
+        </div>
+
+        <button type="submit" class="btn-primary">Mentés</button>
+        <button type="button" class="btn-back" (click)="toggleAddQuestion()">Mégsem</button>
+      </form>
+    </div>
 
   </div>
+</div>
 
 <div class="course-wrapper" *ngIf="!assignment">
   <div class="glass-panel" style="text-align: center; padding: 40px;">

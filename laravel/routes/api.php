@@ -22,3 +22,8 @@ Route::delete('/assignments/{id}', [CoursesController::class, 'deleteAssignment'
 Route::post('/login', [AuthController::class, 'login_store']);
 Route::post('/register', [AuthController::class, 'register_store']);
 Route::put('/assignments/{id}', [CoursesController::class, 'updateAssignment']);
+Route::get('/assignments/{id}/questions', [CoursesController::class, 'getQuestions']);
+Route::post('/assignments/{id}/questions', [CoursesController::class, 'addQuestion']);
+Route::post('/questions/{id}/answers', [CoursesController::class, 'addAnswer']);
+Route::delete('/questions/{id}', [CoursesController::class, 'deleteQuestion']);
+Route::delete('/answers/{id}', [CoursesController::class, 'deleteAnswer']);
