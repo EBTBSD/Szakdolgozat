@@ -89,7 +89,9 @@ class AuthController extends Controller
             $username = strtoupper(\Illuminate\Support\Str::random(5));
             $exists = \App\Models\User::where('username', $username)->exists();
         } while ($exists);
-        $user = \App\Models\User::create([
+        $user = User::create([
+            'firstname' => $adatok['firstname'],
+            'lastname'  => $adatok['lastname'],
             'username' => $username,
             'password' => bcrypt($adatok['password']),
             'email' => $adatok['email'],

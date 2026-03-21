@@ -57,11 +57,9 @@ class MainController extends Controller
                 $course = $courses->firstWhere('id', $ass->course_id);
                 $ass->course_name = $course ? $course->course_name : 'Ismeretlen kurzus';
                 
-                // Megnézzük, beküldte-e már
                 $sub = $submissions->firstWhere('assignment_id', $ass->id);
                 $ass->is_completed = $sub ? true : false;
                 
-                // Megnézzük, lejárt-e
                 $deadline = \Carbon\Carbon::parse($ass->assignment_deadline)->endOfDay();
                 $ass->is_expired = \Carbon\Carbon::now()->greaterThan($deadline);
             }
@@ -70,7 +68,7 @@ class MainController extends Controller
                 'status' => 'Siker',
                 'user' => $user,
                 'courses' => $courses,
-                'assignments' => $assignments, // <--- EZT KÜLDJÜK ÁT AZ ÚJ LISTÁHOZ!
+                'assignments' => $assignments,
                 'stats' => [
                     'average' => $average,
                     'ass_perc' => $ass_perc,

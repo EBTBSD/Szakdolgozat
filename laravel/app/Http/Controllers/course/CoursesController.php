@@ -234,11 +234,9 @@ class CoursesController extends Controller
                 return response()->json(['message' => 'Ez a feladat nem található vagy nem tölthető ki!'], 404);
             }
 
-            // ⏳ IDŐELLENŐRZÉS: Lejárt a határidő? (Az adott nap 23:59:59-ig van idő)
             $deadline = \Carbon\Carbon::parse($assignment->assignment_deadline)->endOfDay();
             $isExpired = \Carbon\Carbon::now()->greaterThan($deadline);
 
-            // 1. Eset: Ha már beküldte, az eredményt mutatjuk (akkor is, ha már lejárt az idő)
             if ($submission) {
                 return response()->json([
                     'is_completed' => true,
@@ -248,7 +246,6 @@ class CoursesController extends Controller
                 ], 200);
             }
 
-            // 2. Eset: Ha NEM küldte be, de LEJÁRT az idő (Nem adjuk oda a kérdéseket!)
             if ($isExpired) {
                 return response()->json([
                     'is_completed' => false,
@@ -257,7 +254,6 @@ class CoursesController extends Controller
                 ], 200);
             }
 
-            // 3. Eset: Minden rendben, még van idő! (Elküldjük a kérdéseket)
             $questions = \App\Models\QuestionModel::with(['answers' => function($query) {
                 $query->select('id', 'question_id', 'answer_text'); 
             }])->where('assignment_id', $id)->get();
