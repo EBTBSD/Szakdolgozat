@@ -3,14 +3,29 @@
   
   <aside class="sidebar glass-panel">
     <button class="btn-primary" (click)="openModal()">+ Új Kurzus</button>
+    <div class="glass-panel" style="margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; position: relative; z-index: 10;">
+  
+      <h3 style="color: white; margin: 0; min-width: 220px;">➕ Csatlakozás Kurzushoz</h3>
+      
+      <input type="text" 
+             [(ngModel)]="inviteCode" 
+             placeholder="6 jegyű kód (pl. A7X9BQ)" 
+             style="padding: 12px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.6); color: white; flex-grow: 1; min-width: 200px; max-width: 300px; text-transform: uppercase; outline: none; font-weight: bold; letter-spacing: 1px;">
+             
+      <button class="btn-primary" style="padding: 12px 25px; white-space: nowrap; cursor: pointer;" (click)="joinCourse()">
+        Csatlakozás 🚀
+      </button>
     
+    </div>
     <div class="course-list">
       <div class="course-card" *ngFor="let item of courses" 
            [style.backgroundImage]="'url(' + item.course_img_path + ')'"
            (click)="goToCourse(item.id)">
         <div class="course-overlay">
           <h3>{{ item.course_name }}</h3>
+          <h3>Meghívó kód: {{ item.invite_code }}</h3>
         </div>
+     
       </div>
     </div>
   </aside>
@@ -36,19 +51,34 @@
       </div>
     </div>
 
-    <div class="lists-grid">
-      <div class="list-card glass-panel">
-        <h2>Események</h2>
-        <div class="list-item">Esemény #1</div>
-        <div class="list-item">Esemény #2</div>
-        <div class="list-item">Esemény #3</div>
-      </div>
+    <div class="glass-panel" style="margin-top: 20px;">
+      <h3 style="color: white; margin-bottom: 15px;">📌 Aktuális Feladatok (Teendők)</h3>
       
-      <div class="list-card glass-panel">
-        <h2>Aktuális Feladatok</h2>
-        <div class="list-item">Feladat #1</div>
-        <div class="list-item">Feladat #2</div>
-        <div class="list-item">Feladat #3</div>
+      <div *ngIf="recentAssignments.length === 0" style="color: #aaa;">
+        Jelenleg nincs kiírva egyetlen feladat sem.
+      </div>
+    
+      <div *ngFor="let ass of recentAssignments" 
+           style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+        
+        <div>
+          <h4 style="color: white; margin: 0;">
+            {{ ass.assignment_name }} 
+            <span style="font-size: 12px; background: #2196f3; padding: 2px 6px; border-radius: 4px; margin-left: 10px;">{{ ass.assignment_type }}</span>
+          </h4>
+          <p style="color: #bbb; margin: 5px 0 0 0; font-size: 14px;">
+            📚 {{ ass.course_name }} | ⏳ Határidő: {{ ass.assignment_deadline }}
+          </p>
+        </div>
+    
+        <div>
+          <span *ngIf="ass.is_completed" style="color: #4caf50; font-weight: bold;">✅ Kész</span>
+          <span *ngIf="!ass.is_completed && ass.is_expired" style="color: #ff5252; font-weight: bold;">❌ Lejárt</span>
+          <button *ngIf="!ass.is_completed && !ass.is_expired" class="btn-primary" style="padding: 8px 15px; font-size: 14px;" [routerLink]="['/student-test', ass.id]">
+            Kitöltés 🚀
+          </button>
+        </div>
+    
       </div>
     </div>
   </main>

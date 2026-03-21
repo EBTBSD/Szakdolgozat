@@ -42,7 +42,36 @@
       <span class="badge">{{ assignment.assignment_type }}</span>
     </div>
   </div>
+  <div class="glass-panel" style="margin-top: 30px; padding: 20px;">
+    <h3>📊 Hallgatók Eredményei</h3>
+    <hr>
+    
+    <table *ngIf="submissions.length > 0" style="width: 100%; text-align: left; border-collapse: collapse;">
+      <thead>
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+          <th style="padding: 10px;">Diák Neve</th>
+          <th style="padding: 10px;">Állapot</th>
+          <th style="padding: 10px;">Pontszám</th>
+          <th style="padding: 10px;">Érdemjegy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sub of submissions" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+          <td style="padding: 10px;">{{ sub.user?.username }}</td>
+          <td style="padding: 10px;">
+            <span *ngIf="sub.status === 1" style="color: limegreen;">Beküldve</span>
+            <span *ngIf="sub.status === 0" style="color: orange;">Folyamatban</span>
+          </td>
+          <td style="padding: 10px;">{{ sub.achieved_points }} / {{ assignment?.assignment_max_point }}</td>
+          <td style="padding: 10px; font-weight: bold;">{{ sub.grade ? sub.grade : '-' }}</td>
+        </tr>
+      </tbody>
+    </table>
 
+    <p *ngIf="submissions.length === 0" style="text-align: center; color: #ccc; margin-top: 20px;">
+      Még egyetlen hallgató sem töltötte ki a feladatot.
+    </p>
+  </div>
   <div class="glass-panel" style="margin-top: 20px; padding: 20px;">
     <h3>A feladat részletei</h3>
     <hr>
@@ -126,7 +155,6 @@
         <button type="button" class="btn-back" (click)="toggleAddQuestion()">Mégsem</button>
       </form>
     </div>
-
   </div>
 </div>
 

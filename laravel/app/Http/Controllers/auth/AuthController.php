@@ -84,25 +84,21 @@ class AuthController extends Controller
 
     public function register_store(RegisterRequest $request)
     {
-        $u = User::create($request->validated());
-        
-        $token = $u->createToken('auth_token')->plainTextToken;
+        $adatok = $request->validated();
+        do {
+            $username = strtoupper(\Illuminate\Support\Str::random(5));
+            $exists = \App\Models\User::where('username', $username)->exists();
+        } while ($exists);
+        $user = \App\Models\User::create([
+            'username' => $username,
+            'password' => bcrypt($adatok['password']),
+            'email' => $adatok['email'],
+        ]);
 
         return response()->json([
             'status' => 'Siker',
-            'token' => $token,
-            'user' => $u,
-            'message' => 'Sikeres regisztráció!'
+            'message' => 'Sikeres regisztráció!',
+            'username' => $username
         ], 201);
-    }
-
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-        
-        return response()->json([
-            'status' => 'Siker',
-            'message' => 'Sikeres kijelentkezés!'
-        ], 200);
     }
 }

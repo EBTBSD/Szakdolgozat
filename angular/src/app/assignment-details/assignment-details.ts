@@ -14,6 +14,17 @@ import { FormsModule } from '@angular/forms';
 export class AssignmentDetailsComponent implements OnInit {
   assignmentId: string | null = null;
   assignment: any = null;
+  isEditing: boolean = false;
+  questions: any[] = [];
+  isAddingQuestion: boolean = false;
+  newQuestion: any = {
+    question_text: '',
+    question_type: 'multiple_choice',
+    question_points: 1
+  };
+  activeQuestionIdForAnswer: number | null = null;
+  newAnswer: any = { answer_text: '', is_correct: false };
+  submissions: any[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -40,6 +51,7 @@ export class AssignmentDetailsComponent implements OnInit {
         next: (res: any) => {
           this.assignment = res.assignment;
           this.loadQuestions();
+          this.loadSubmissions();
         },
         error: (err) => {
           console.error('Hiba a feladat betöltésekor!', err);
@@ -70,7 +82,6 @@ export class AssignmentDetailsComponent implements OnInit {
     }
   }
 
-  isEditing: boolean = false;
   toggleEdit() {
     this.isEditing = !this.isEditing;
   }
@@ -92,13 +103,6 @@ export class AssignmentDetailsComponent implements OnInit {
         }
       });
   }
-  questions: any[] = [];
-  isAddingQuestion: boolean = false;
-  newQuestion: any = {
-    question_text: '',
-    question_type: 'multiple_choice',
-    question_points: 1
-  };
 
   loadQuestions() {
     const token = localStorage.getItem('token');
@@ -133,8 +137,6 @@ export class AssignmentDetailsComponent implements OnInit {
         }
       });
   }
-  activeQuestionIdForAnswer: number | null = null;
-  newAnswer: any = { answer_text: '', is_correct: false };
   toggleAddAnswer(questionId: number) {
     if (this.activeQuestionIdForAnswer === questionId) {
       this.activeQuestionIdForAnswer = null;
@@ -165,7 +167,7 @@ export class AssignmentDetailsComponent implements OnInit {
         }
       });
   }
-  
+
   deleteQuestion(questionId: number) {
     if (confirm('Biztosan törlöd ezt a kérdést? A hozzá tartozó válaszok is eltűnnek!')) {
       const token = localStorage.getItem('token');
@@ -197,5 +199,16 @@ export class AssignmentDetailsComponent implements OnInit {
           error: (err) => console.error('Hiba a válasz törlésekor!', err)
         });
     }
+  }
+
+  loadSubmissions() {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+    this.http.get(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}/submissions`, { headers })
+      .subscribe({
+        next: (res: any) => this.submissions = res.submissions,
+        error: (err) => console.error(err)
+      });
   }
 }

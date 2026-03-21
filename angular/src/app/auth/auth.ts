@@ -14,13 +14,10 @@ import { Router } from '@angular/router';
 export class AuthComponent {
   loginData = { username: '', password: '' };
   registerData = { lastname: '', firstname: '', email: '', username: '', password: '', password_again: '' };
-
   loginMessage: string = '';
   isLoginError: boolean = false;
-  
   registerMessage: string = '';
   isRegisterError: boolean = false;
-
   private apiUrl = 'http://100.96.56.30:8000/api';
 
   constructor(private http: HttpClient, private router: Router) {}
@@ -47,21 +44,14 @@ export class AuthComponent {
   }
 
   onRegister() {
-    this.registerMessage = 'Regisztráció folyamatban...';
-    this.isRegisterError = false;
-
-    this.http.post<any>(`${this.apiUrl}/register`, this.registerData).subscribe({
-      next: (valasz) => {
-        this.registerMessage = 'Sikeres regisztráció!';
-        this.isRegisterError = false;
-        
-        localStorage.setItem('auth_token', valasz.token);
-        console.log('Regisztráció sikeres:', valasz);
+    this.http.post('http://100.96.56.30:8000/api/register', this.registerData).subscribe({
+      next: (res: any) => {
+        alert(`🎉 Sikeres regisztráció!\n\nA Te felhasználó neved: ${res.username}\n\nKérlek, írd fel magadnak, mert ezzel tudsz majd bejelentkezni!`);
+        this.router.navigate(['/login']);
       },
-      error: (hiba) => {
-        this.isRegisterError = true;
-        this.registerMessage = 'Hiba történt. Lehet, hogy az email cím vagy felhasználónév már foglalt!';
-        console.error(hiba);
+      error: (err) => {
+        console.error(err);
+        alert('Hiba történt a regisztráció során!');
       }
     });
   }

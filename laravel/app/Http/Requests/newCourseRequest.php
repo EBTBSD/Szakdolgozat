@@ -22,10 +22,11 @@ class newCourseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "course_name" => "",
-            "course_type" => "",
-            "course_img_path" => "",
-            "creator_username" => "",
+            "course_name" => "required|string|max:255",
+            "course_type" => "required|string|max:255",
+            "course_img_path" => "nullable|string|max:255",
+            "creator_username" => "string|max:255",
+            "course_users" => "nullable|string|max:255"
         ];
     }
 }

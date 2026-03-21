@@ -16,6 +16,7 @@ class CoursesModel extends Model
         'course_name',
         'course_type',
         'course_img_path',
-        'course_users',
+        'invite_code',
+        'course_users'
     ];
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('course_name');
             $table->string('course_type');
             $table->string('course_img_path');
+            $table->string('invite_code')->nullable();
             $table->text('course_users')->nullable();
             $table->timestamps();
         });

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BackgroundComponent } from './background';
 
-describe('Background', () => {
+describe('BackgroundComponent', () => {
   let component: BackgroundComponent;
   let fixture: ComponentFixture<BackgroundComponent>;
 

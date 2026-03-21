@@ -6,16 +6,13 @@
     <button class="btn-back" (click)="goBack()">← Vissza a Dashboardra</button>
     <div class="header-title">
       <h2>Kurzus Részletei (ID: {{ courseId }})</h2>
-      <button class="btn-primary" (click)="openModal()">+ Új Feladat</button>
+      <button *ngIf="isTeacher" class="btn-primary" (click)="openModal()">+ Új Feladat</button>
     </div>
   </div>
 
   <div class="assignments-grid">
     
-    <div class="assignment-card glass-panel" *ngFor="let task of assignments" 
-         [routerLink]="['/assignment', task.id]" 
-         style="cursor: pointer;"
-         [ngClass]="{'status-done': task.assignment_finnished === 2, 'status-fail': task.assignment_finnished === 1}">
+    <div class="assignment-card glass-panel" *ngFor="let task of assignments" (click)="openAssignment(task.id)" style="cursor: pointer;" [ngClass]="{'status-done': task.assignment_finnished === 2, 'status-fail': task.assignment_finnished === 1}">
       
       <div class="card-header">
         <h3>{{ task.assignment_name }}</h3>
@@ -68,8 +65,7 @@
     <option value="0">Nem (Rejtett)</option>
   </select>
 </div>
-        
-        <button type="submit" class="btn-primary btn-full">Feladat Mentése</button>
-      </form>
-    </div>
-  </div>
+<button type="submit" class="btn-primary btn-full">Feladat Mentése</button>
+</form>
+</div>
+</div>

@@ -15,50 +15,62 @@ class MainController extends Controller
     public function main(Request $request){
         $user = $request->user();
         if($user){
-            $courses = CoursesModel::where('course_users', $user->username)
+            // 1. A kurzusok lekérése
+            $courses = CoursesModel::where('course_users', 'LIKE', '%' . $user->username . '%')
                                    ->orWhere('creator_username', $user->username)
                                    ->get();
-            $assigment = AssignmentModel::where('user_username', $user->username)->get();
+            
+            // 2. A diák eddigi beadásai
+            $submissions = \App\Models\SubmissionModel::where('user_id', $user->id)->get();
+            
+            // --- STATISZTIKA SZÁMÍTÁSA ---
             $grades = [];
-            $ass_perc_arr = [];
-            $ass_perc_suc = 0;
-            $ass_perc_fai = 0;
-            $ass_perc_out = 0;
-            $ass_perc_nye = 0;
-            $ass_perc_need = 0;
-            $ass_perc = 0;
-            foreach ($assigment as $item) {
-                $grades[] = $item->assignment_grade;
-                $ass_perc_arr[] = $item->assignment_finnished;
-            }
-            if(count($ass_perc_arr) > 0){
-                for ($i=0; $i < count($ass_perc_arr); $i++) {
-                    if($ass_perc_arr[$i] == 3){
-                        $ass_perc_need++;
-                    }
-                    elseif($ass_perc_arr[$i] == 2){
-                        $ass_perc_suc++;
-                    }
-                    elseif($ass_perc_arr[$i] == 1){
-                        $ass_perc_fai++;
-                    }
-                    elseif($ass_perc_arr[$i] == 0){
-                        $ass_perc_nye++;
-                    }
+            $ass_perc_suc = 0; $ass_perc_fai = 0;
+            $ass_perc_out = 0; $ass_perc_nye = 0; $ass_perc_need = 0;
+
+            foreach ($submissions as $sub) {
+                $grades[] = $sub->grade;
+                if ($sub->grade >= 2) {
+                    $ass_perc_suc++;
+                } else {
+                    $ass_perc_fai++;
                 }
-                $ass_perc = round(($ass_perc_suc / count($ass_perc_arr)) * 100);
-            } else {
-                $ass_perc = 0;
             }
-            if(count($grades) != 0){
-                $average = round(array_sum($grades) / count($grades), 2);
-            } else {
-                $average = 0;
+
+            $total_subs = count($submissions);
+            $ass_perc = ($total_subs > 0) ? round(($ass_perc_suc / $total_subs) * 100) : 0;
+            $average = (count($grades) > 0) ? round(array_sum($grades) / count($grades), 2) : 0;
+
+
+            // --- ÚJ: FELADATOK (TEENDŐK) LEKÉRÉSE ---
+            $courseIds = $courses->pluck('id'); // Kigyűjtjük a kurzusok ID-jait
+            
+            // Lekérjük az összes elérhető feladatot, ami ezekhez a kurzusokhoz tartozik
+            $assignments = \App\Models\AssignmentModel::whereIn('course_id', $courseIds)
+                                ->where('assignment_accessible', 1)
+                                ->orderBy('assignment_deadline', 'asc') // Legközelebbi határidő legelöl
+                                ->get();
+
+            // Kicsit "kicsinosítjuk" a feladatokat az Angular számára
+            foreach ($assignments as $ass) {
+                // Hozzárakjuk a kurzus nevét
+                $course = $courses->firstWhere('id', $ass->course_id);
+                $ass->course_name = $course ? $course->course_name : 'Ismeretlen kurzus';
+                
+                // Megnézzük, beküldte-e már
+                $sub = $submissions->firstWhere('assignment_id', $ass->id);
+                $ass->is_completed = $sub ? true : false;
+                
+                // Megnézzük, lejárt-e
+                $deadline = \Carbon\Carbon::parse($ass->assignment_deadline)->endOfDay();
+                $ass->is_expired = \Carbon\Carbon::now()->greaterThan($deadline);
             }
+
             return response()->json([
                 'status' => 'Siker',
                 'user' => $user,
                 'courses' => $courses,
+                'assignments' => $assignments, // <--- EZT KÜLDJÜK ÁT AZ ÚJ LISTÁHOZ!
                 'stats' => [
                     'average' => $average,
                     'ass_perc' => $ass_perc,

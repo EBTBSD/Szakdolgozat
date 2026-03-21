@@ -20,12 +20,13 @@ export class CourseComponent implements OnInit {
   
   isModalOpen: boolean = false;
   newAssignment: any = {
-    assignment_name: '',
-    assignment_type: 'Dolgozat',
-    assignment_max_point: 100,
-    assignment_deadline: '',
-    assignment_accessible: '1'
+  assignment_name: '',
+  assignment_type: 'Dolgozat',
+  assignment_max_point: 100,
+  assignment_deadline: '',
+  assignment_accessible: '1'
   };
+  isTeacher: boolean = false;
 
   private apiUrl = 'http://100.96.56.30:8000/api';
 
@@ -50,6 +51,7 @@ export class CourseComponent implements OnInit {
       next: (valasz: any) => {
         this.courseDetails = valasz.course;
         this.assignments = valasz.assignments;
+        this.isTeacher = valasz.is_teacher;
       },
       error: (hiba: any) => {
         console.error('Hiba a kurzus lekérésekor:', hiba);
@@ -81,5 +83,13 @@ export class CourseComponent implements OnInit {
         console.error('Hiba a feladat létrehozásakor', hiba);
       }
     });
+  }
+
+  openAssignment(assignmentId: number) {
+    if (this.isTeacher) {
+      this.router.navigate(['/assignment-details', assignmentId]);
+    } else {
+      this.router.navigate(['/student-test', assignmentId]);
+    }
   }
 }
