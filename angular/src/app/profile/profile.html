@@ -1,0 +1,31 @@
+<app-navbar></app-navbar>
+
+<div *ngIf="alertMessage" class="custom-alert glass-panel" [ngClass]="alertType">
+  <span>{{ alertMessage }}</span>
+  <button class="close-alert-btn" (click)="closeAlert()">&times;</button>
+</div>
+
+<div class="div_profile">
+  <div class="glass-panel">
+    <h2>Profilom</h2>
+    
+    <div class="input-row">
+      <input type="text" [(ngModel)]="userData.lastname" class="input_auth half-width" placeholder="Vezetéknév">
+      <input type="text" [(ngModel)]="userData.firstname" class="input_auth half-width" placeholder="Keresztnév">
+    </div>
+    <input type="text" [(ngModel)]="userData.username" class="input_auth" readonly>
+    <input type="email" [(ngModel)]="userData.email" class="input_auth" placeholder="E-mail cím">
+
+    <div style="margin-top: 15px; margin-bottom: 15px;">
+      <p style="text-align: center; color: rgba(255,255,255,0.7); font-size: 13px; margin-bottom: 8px;">
+        Új jelszó beállítása (Hagyd üresen, ha nem módosítod)
+      </p>
+      <input type="password" [(ngModel)]="userData.password" class="input_auth" placeholder="Új jelszó (opcionális)">
+    </div>
+    <div class="button-group">
+        <button class="button_secondary" (click)="goBack()">⬅ Vissza</button>
+        <button class="button_auth" (click)="updateProfile()">Mentés 💾</button>
+      </div>
+  
+    </div>
+  </div>

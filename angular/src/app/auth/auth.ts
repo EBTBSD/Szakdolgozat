@@ -13,11 +13,14 @@ import { Router } from '@angular/router';
 })
 export class AuthComponent {
   loginData = { username: '', password: '' };
-  registerData = { lastname: '', firstname: '', email: '', username: '', password: '', password_again: '' };
-  loginMessage: string = '';
+  registerData = { lastname: '', firstname: '', email: '', username: '', password: '', password_confirmation: '' };  loginMessage: string = '';
   isLoginError: boolean = false;
   registerMessage: string = '';
   isRegisterError: boolean = false;
+  backendErrors: any = {};
+  isRegisterSuccess: boolean = false;
+  generatedUsername: string = '';
+
   private apiUrl = 'http://100.96.56.30:8000/api';
 
   constructor(private http: HttpClient, private router: Router) {}
@@ -35,23 +38,29 @@ export class AuthComponent {
         
         this.router.navigate(['/dashboard']); 
       },
-      error: (hiba) => {
+      error: (err) => {
         this.isLoginError = true;
-        this.loginMessage = hiba.error?.message || 'Hibás felhasználónév vagy jelszó!';
-        console.error(hiba);
+        this.loginMessage = err.error?.message || 'Hibás felhasználónév vagy jelszó!';
+        console.error(err);
       }
     });
   }
 
   onRegister() {
+    this.backendErrors = {};
+    this.isRegisterSuccess = false;
     this.http.post('http://100.96.56.30:8000/api/register', this.registerData).subscribe({
       next: (res: any) => {
-        alert(`🎉 Sikeres regisztráció!\n\nA Te felhasználó neved: ${res.username}\n\nKérlek, írd fel magadnak, mert ezzel tudsz majd bejelentkezni!`);
-        this.router.navigate(['/login']);
+        this.isRegisterSuccess = true;
+        this.generatedUsername = res.username;
+        this.registerData = { lastname: '', firstname: '', email: '', username: '', password: '', password_confirmation: '' };
       },
       error: (err) => {
-        console.error(err);
-        alert('Hiba történt a regisztráció során!');
+        if (err.status === 422 && err.error && err.error.errors) {
+          this.backendErrors = err.error.errors;
+        } else {
+          this.backendErrors = "Váratlan hiba történt!";
+        }
       }
     });
   }

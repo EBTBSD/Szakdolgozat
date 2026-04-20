@@ -1,0 +1,118 @@
+.div_profile {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 60px 20px;
+    min-height: 80vh;
+}
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 450px;
+}
+
+.glass-panel h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: white;
+}
+
+.input_auth {
+    width: 100%;
+    padding: 14px 15px;
+    margin-bottom: 15px;
+    background: rgba(0, 0, 0, 0.15); 
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.input_auth::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.input_auth:focus {
+    background: rgba(0, 0, 0, 0.25);
+    border-color: #00d2ff;
+    box-shadow: 0 0 10px rgba(0, 210, 255, 0.3);
+}
+
+.input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.half-width {
+    width: 50%;
+}
+
+.button_auth {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.button_auth:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.button-group > button {
+    flex: 1; 
+    margin-top: 0;
+}
+
+.button_secondary {
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #cccccc;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.button_secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+}

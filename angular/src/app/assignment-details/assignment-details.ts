@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -25,12 +25,16 @@ export class AssignmentDetailsComponent implements OnInit {
   activeQuestionIdForAnswer: number | null = null;
   newAnswer: any = { answer_text: '', is_correct: false };
   submissions: any[] = [];
+  notificationMessage: string = '';
+  isNotificationSuccess: boolean = true;
 
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
     private location: Location
   ) {}
+
+
 
   ngOnInit() {
     this.assignmentId = this.route.snapshot.paramMap.get('id');
@@ -40,13 +44,15 @@ export class AssignmentDetailsComponent implements OnInit {
     }
   }
 
-  loadAssignmentData() {
-    const token = localStorage.getItem('auth_token'); 
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+  showNotification(message: string, isSuccess: boolean = true) {
+    this.notificationMessage = message;
+    this.isNotificationSuccess = isSuccess;
+    setTimeout(() => { this.notificationMessage = ''; }, 3000);
+  }
 
-    this.http.get(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}`, { headers })
+  loadAssignmentData() {
+
+    this.http.get(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}`)
       .subscribe({
         next: (res: any) => {
           this.assignment = res.assignment;
@@ -65,18 +71,15 @@ export class AssignmentDetailsComponent implements OnInit {
 
   deleteAssignment() {
     if (confirm('Biztosan törölni szeretnéd ezt a feladatot? Ezt nem lehet visszavonni!')) {
-      const token = localStorage.getItem('token'); 
-      const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-
-      this.http.delete(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}`, { headers })
+      this.http.delete(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}`)
         .subscribe({
           next: (res: any) => {
-            alert('Feladat törölve!');
+            this.showNotification('Feladat törölve!');
             this.goBack();
           },
           error: (err) => {
             console.error('Hiba a törlésnél!', err);
-            alert('Nem sikerült törölni a feladatot.');
+            this.showNotification('Nem sikerült törölni a feladatot.');
           }
         });
     }
@@ -87,28 +90,23 @@ export class AssignmentDetailsComponent implements OnInit {
   }
 
   saveChanges() {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-
-    this.http.put(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}`, this.assignment, { headers })
+    this.http.put(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}`, this.assignment)
       .subscribe({
         next: (res: any) => {
-          alert('Sikeres módosítás!');
+          this.showNotification('Sikeres módosítás!');
           this.assignment = res.assignment;
           this.isEditing = false;
         },
         error: (err) => {
           console.error('Hiba a mentésnél!', err);
-          alert('Nem sikerült a mentés!');
+          this.showNotification('Nem sikerült a mentés!');
         }
       });
   }
 
   loadQuestions() {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.get(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}/questions`, { headers })
+    this.http.get(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}/questions`)
       .subscribe({
         next: (res: any) => { this.questions = res.questions; },
         error: (err) => { console.error('Hiba a kérdések betöltésekor!', err); }
@@ -120,20 +118,18 @@ export class AssignmentDetailsComponent implements OnInit {
   }
 
   saveNewQuestion() {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.post(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}/questions`, this.newQuestion, { headers })
+    this.http.post(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}/questions`, this.newQuestion)
       .subscribe({
         next: (res: any) => {
-          alert('Kérdés sikeresen hozzáadva!');
+          this.showNotification('Kérdés sikeresen hozzáadva!');
           this.questions.push(res.question);
           this.isAddingQuestion = false;
           this.newQuestion = { question_text: '', question_type: 'multiple_choice', question_points: 1 };
         },
         error: (err) => {
           console.error('Hiba a kérdés mentésekor!', err);
-          alert('Nem sikerült hozzáadni a kérdést.');
+          this.showNotification('Nem sikerült hozzáadni a kérdést.');
         }
       });
   }
@@ -147,12 +143,10 @@ export class AssignmentDetailsComponent implements OnInit {
   }
 
   saveNewAnswer(questionId: number) {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
     this.newAnswer.is_correct = this.newAnswer.is_correct ? 1 : 0;
 
-    this.http.post(`http://100.96.56.30:8000/api/questions/${questionId}/answers`, this.newAnswer, { headers })
+    this.http.post(`http://100.96.56.30:8000/api/questions/${questionId}/answers`, this.newAnswer)
       .subscribe({
         next: (res: any) => {
           const qIndex = this.questions.findIndex(q => q.id === questionId);
@@ -170,10 +164,8 @@ export class AssignmentDetailsComponent implements OnInit {
 
   deleteQuestion(questionId: number) {
     if (confirm('Biztosan törlöd ezt a kérdést? A hozzá tartozó válaszok is eltűnnek!')) {
-      const token = localStorage.getItem('token');
-      const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-      this.http.delete(`http://100.96.56.30:8000/api/questions/${questionId}`, { headers })
+      this.http.delete(`http://100.96.56.30:8000/api/questions/${questionId}`)
         .subscribe({
           next: () => {
             this.questions = this.questions.filter(q => q.id !== questionId);
@@ -185,10 +177,8 @@ export class AssignmentDetailsComponent implements OnInit {
 
   deleteAnswer(questionId: number, answerId: number) {
     if (confirm('Biztosan törlöd ezt a válaszlehetőséget?')) {
-      const token = localStorage.getItem('token');
-      const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-      this.http.delete(`http://100.96.56.30:8000/api/answers/${answerId}`, { headers })
+      this.http.delete(`http://100.96.56.30:8000/api/answers/${answerId}`)
         .subscribe({
           next: () => {
             const qIndex = this.questions.findIndex(q => q.id === questionId);
@@ -202,10 +192,8 @@ export class AssignmentDetailsComponent implements OnInit {
   }
 
   loadSubmissions() {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.get(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}/submissions`, { headers })
+    this.http.get(`http://100.96.56.30:8000/api/assignments/${this.assignmentId}/submissions`)
       .subscribe({
         next: (res: any) => this.submissions = res.submissions,
         error: (err) => console.error(err)

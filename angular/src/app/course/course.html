@@ -1,71 +1,145 @@
 <app-navbar></app-navbar>
 
+<div *ngIf="alertMessage" class="custom-alert glass-panel" [ngClass]="alertType">
+  <span>{{ alertMessage }}</span>
+  <button class="close-alert-btn" (click)="closeAlert()">&times;</button>
+</div>
+
 <div class="course-wrapper">
   
   <div class="course-header glass-panel">
     <button class="btn-back" (click)="goBack()">← Vissza a Dashboardra</button>
-    <div class="header-title">
-      <h2>Kurzus Részletei (ID: {{ courseId }})</h2>
-      <button *ngIf="isTeacher" class="btn-primary" (click)="openModal()">+ Új Feladat</button>
+    <div class="header-title" *ngIf="courseDetails" style="display: flex; align-items: center; gap: 15px;">
+      <h2 style="margin:0;">{{ courseDetails.course_name }}</h2>
+      <h3 style="margin:0;">Meghívó kód: {{ courseDetails.invite_code }}</h3>    
+      <button *ngIf="isTeacher" class="btn-primary" (click)="openModal(0, 'module')">
+        + Új Hét / Modul
+      </button>
     </div>
   </div>
 
-  <div class="assignments-grid">
+  <div *ngIf="modules.length === 0" class="glass-panel" style="text-align: center; padding: 40px;">
+    <h3>Ebben a kurzusban még nincsenek hetek/modulok!</h3>
+  </div>
+
+  <div *ngFor="let module of modules" class="glass-panel" style="margin-bottom: 30px;">
     
-    <div class="assignment-card glass-panel" *ngFor="let task of assignments" (click)="openAssignment(task.id)" style="cursor: pointer;" [ngClass]="{'status-done': task.assignment_finnished === 2, 'status-fail': task.assignment_finnished === 1}">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 20px;">
+      <h2 style="margin: 0; color: white;">{{ module.module_title }}</h2>
       
-      <div class="card-header">
-        <h3>{{ task.assignment_name }}</h3>
-        <span class="badge">{{ task.assignment_type }}</span>
-      </div>
-      
-      <div class="card-body">
-        <p><b>Pontszám:</b> {{ task.assignment_succed_point }} / {{ task.assignment_max_point }}</p>
-        <p><b>Osztályzat:</b> {{ task.assignment_grade }} / 5</p>
-      </div>
+      <button *ngIf="isTeacher" class="btn-primary" (click)="openModal(module.id, 'assignment')">
+        + Új Tartalom Hozzáadása
+      </button>
+    </div>
 
-      <div class="card-footer">
-        <span *ngIf="task.assignment_finnished === 2">Időben Leadva</span>
-        <span *ngIf="task.assignment_finnished === 1">Nem lett teljesítve</span>
-        <span *ngIf="task.assignment_finnished === 0">Későn Leadva</span>
+    <div *ngIf="module.materials?.length > 0" style="margin-bottom: 30px;">
+      <h3>Tananyagok 📚</h3>
+      <div class="assignments-grid"> 
+        <div class="assignment-card glass-panel" *ngFor="let file of module.materials">
+          <div class="card-header">
+            <h3>{{ file.file_name }}</h3>
+            <span class="badge">Fájl</span>
+          </div>
+          <div class="card-body" style="text-align: center; margin-top: 15px;">
+            <a [href]="'http://100.96.56.30:8000/storage/' + file.file_path" target="_blank" class="btn-primary" style="text-decoration: none; display: inline-block;">
+              Megnyitás / Letöltés 📥
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="module.assignments?.length > 0">
+      <h3>Feladatok 📝</h3>
+      <div class="assignments-grid">
+        <div class="assignment-card glass-panel" *ngFor="let task of module.assignments" (click)="openAssignment(task.id)" style="cursor: pointer;">
+          
+          <div class="card-header">
+            <h3>{{ task.assignment_name }}</h3>
+            <span class="badge">{{ task.assignment_type }}</span>
+          </div>
+          
+          <div class="card-body">
+            <p><b>Max Pontszám:</b> {{ task.assignment_max_point }}</p>
+            <p><b>Határidő:</b> {{ task.assignment_deadline | date:'yyyy. MM. dd. HH:mm' }}</p>
+          </div>
+
+          <div class="card-footer">
+            <span>Kattints a megnyitáshoz</span>
+          </div>
+        </div>
       </div>
     </div>
 
-  </div>
-</div>
-<div class="modal-backdrop" *ngIf="isModalOpen">
-    <div class="modal-content glass-panel">
-      <span class="close-btn" (click)="closeModal()">&times;</span>
-      <h2>Új feladat kiírása</h2>
-      
-      <form (ngSubmit)="createAssignment()">
-        <div class="form-group">
-          <label>Feladat Neve</label>
-          <input class="input-glass" type="text" name="assignment_name" [(ngModel)]="newAssignment.assignment_name" placeholder="pl. Beadandó Esszé" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Típus</label>
-          <input class="input-glass" type="text" name="assignment_type" [(ngModel)]="newAssignment.assignment_type" placeholder="pl. Teszt" required>
-        </div>
-        
-        <div class="form-group">
-          <label>Maximális Pontszám</label>
-          <input class="input-glass" type="number" name="assignment_max_point" [(ngModel)]="newAssignment.assignment_max_point" required>
-        </div>
-        <div class="form-group mb-3">
-  <label>Határidő:</label>
-  <input type="datetime-local" class="form-control" name="assignment_deadline" [(ngModel)]="newAssignment.assignment_deadline" required>
-</div>
+  </div> </div> <div class="modal-backdrop" *ngIf="isModalOpen">
+  <div class="modal-content glass-panel" style="max-width: 500px; margin: 10% auto;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 20px;">
+      <h2 style="margin: 0;">Új tartalom hozzáadása</h2>
+      <span class="close-btn" (click)="closeModal()" style="cursor: pointer; font-size: 28px; line-height: 1;">&times;</span>
+    </div>
+    
+    <div class="form-group mb-4" style="margin-bottom: 20px;">
+      <label>Mit szeretnél létrehozni?</label>
+      <select class="input-glass form-control" [(ngModel)]="creationType" style="width: 100%;">
+        <option value="module">Új Hét / Modul hozzáadása</option> <option value="assignment" *ngIf="selectedModuleId !== 0">📝 Határidős Feladat / Dolgozat</option>
+        <option value="material" *ngIf="selectedModuleId !== 0">Tananyag (Fájl feltöltése)</option>
+      </select>
+    </div>
 
-<div class="form-group mb-3">
-  <label>Látható a diákok számára?</label>
-  <select class="form-control" name="assignment_accessible" [(ngModel)]="newAssignment.assignment_accessible" required>
-    <option value="1">Igen (Azonnal látható)</option>
-    <option value="0">Nem (Rejtett)</option>
-  </select>
-</div>
-<button type="submit" class="btn-primary btn-full">Feladat Mentése</button>
-</form>
-</div>
+    <form *ngIf="creationType === 'module'" (ngSubmit)="createModule()">
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label>Modul Neve (pl. 1. Hét: Bevezetés)</label>
+        <input class="input-glass" type="text" name="module_title" [(ngModel)]="newModuleTitle" required style="width: 100%; box-sizing: border-box;">
+      </div>
+      <button type="submit" class="btn-primary btn-full" style="width: 100%;">Hét Létrehozása</button>
+    </form>
+    <form *ngIf="creationType === 'assignment'" (ngSubmit)="createAssignment()">
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label>Feladat Neve</label>
+        <input class="input-glass" type="text" name="assignment_name" [(ngModel)]="newAssignment.assignment_name" placeholder="pl. Beadandó Esszé" required style="width: 100%;">
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label>Típus</label>
+        <input class="input-glass" type="text" name="assignment_type" [(ngModel)]="newAssignment.assignment_type" placeholder="pl. Teszt" required style="width: 100%;">
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label>Maximális Pontszám</label>
+        <input class="input-glass" type="number" name="assignment_max_point" [(ngModel)]="newAssignment.assignment_max_point" required style="width: 100%;">
+      </div>
+      
+      <div class="form-group mb-3" style="margin-bottom: 15px;">
+        <label>Határidő:</label>
+        <input type="datetime-local" class="input-glass form-control" name="assignment_deadline" [(ngModel)]="newAssignment.assignment_deadline" required style="width: 100%;">
+      </div>
+      
+      <div class="form-group mb-3" style="margin-bottom: 20px;">
+        <label>Látható a diákok számára?</label>
+        <select class="input-glass form-control" name="assignment_accessible" [(ngModel)]="newAssignment.assignment_accessible" required style="width: 100%;">
+          <option value="1">Igen (Azonnal látható)</option>
+          <option value="0">Nem (Rejtett)</option>
+        </select>
+      </div>
+      
+      <button type="submit" class="btn-primary btn-full" style="width: 100%;">Feladat Mentése</button>
+    </form>
+
+    <div *ngIf="creationType === 'material'">
+      <div class="form-group mb-3" style="margin-bottom: 20px;">
+        <label>Fájl kiválasztása (.pdf, .docx, .ppt)</label>
+        <input type="file" class="input-glass form-control" (change)="onFileSelected($event)" accept=".pdf,.doc,.docx,.ppt,.pptx" #fileInput style="width: 100%;">
+      </div>
+      
+      <p *ngIf="uploadMessage" [ngStyle]="{'color': isUploadError ? '#ff4d4d' : '#4BB543'}" style="margin-bottom: 15px; font-weight: bold; text-align: center;">
+        {{ uploadMessage }}
+      </p>
+      
+      <button type="button" class="btn-primary btn-full" [disabled]="!selectedFile" (click)="uploadMaterial()" style="width: 100%;">
+        Fájl Feltöltése 🚀
+      </button>
+    </div>
+
+  </div>
 </div>

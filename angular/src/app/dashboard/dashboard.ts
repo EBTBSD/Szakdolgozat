@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient} from '@angular/common/http';
 import { NavbarComponent } from '../navbar/navbar';
 import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
@@ -15,6 +15,8 @@ import { RouterLink } from '@angular/router';
 })
 export class DashboardComponent implements OnInit {
   isModalOpen: boolean = false;
+  alertMessage: string = '';
+  alertType: 'success' | 'warning' | 'error' = 'success';
 
   stats = {
     average: 0,
@@ -29,7 +31,7 @@ export class DashboardComponent implements OnInit {
   newCourse = { 
     course_name: '', 
     course_type: '', 
-    course_img_path: '/images/course_images/1.jpg', 
+    course_img_path: '/images/course_images/default.jpg', 
     course_users: '' 
   };
   private apiUrl = 'http://100.96.56.30:8000/api';
@@ -40,10 +42,7 @@ export class DashboardComponent implements OnInit {
     this.loadDashboardData();
   }
   loadDashboardData() {
-    const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-
-    this.http.get<any>(`${this.apiUrl}/dashboard-data`, { headers }).subscribe({
+    this.http.get<any>(`${this.apiUrl}/dashboard-data`).subscribe({
       next: (res: any) => {
         this.stats = res.stats;
         this.recentAssignments = res.assignments;
@@ -55,26 +54,24 @@ export class DashboardComponent implements OnInit {
           return c;
         });
       },
-      error: (hiba: any) => {
-        console.error('Hiba az adatok lekérésekor:', hiba);
+      error: (err: any) => {
+        console.error('Hiba az adatok lekérésekor:', err);
       }
     });
   }
   openModal() { this.isModalOpen = true; }
   closeModal() { this.isModalOpen = false; }
   createCourse() {
-    const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-
-    this.http.post<any>(`${this.apiUrl}/courses/new`, this.newCourse, { headers }).subscribe({
+    this.http.post<any>(`${this.apiUrl}/courses/new`, this.newCourse).subscribe({
       next: (res: any) => {
-        console.log('Siker!', res.message);
         this.closeModal();
         this.loadDashboardData();
         this.newCourse = { course_name: '', course_type: '', course_img_path: '/images/course_images/1.jpg', course_users: '' };
+        this.showAlert('A kurzus sikeresen létrejött!', 'success');
       },
-      error: (hiba: any) => {
-        console.error('Hiba a kurzus létrehozásakor', hiba);
+      error: (err: any) => {
+        console.error('Hiba a kurzus létrehozásakor', err);
+        this.showAlert('Hiba a kurzus létrehozásakor!', 'error');
       }
     });
   }
@@ -85,24 +82,31 @@ export class DashboardComponent implements OnInit {
 
   joinCourse() {
     if (!this.inviteCode.trim()) {
-      alert('Kérlek, add meg a meghívó kódot!');
+      this.showAlert('Kérlek, add meg a meghívó kódot!', 'warning');
       return;
     }
-
-    const token = localStorage.getItem('auth_token');
-    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-
-    this.http.post('http://100.96.56.30:8000/api/join-course', { invite_code: this.inviteCode }, { headers })
+    this.http.post('http://100.96.56.30:8000/api/join-course', { invite_code: this.inviteCode })
       .subscribe({
         next: (res: any) => {
-          alert(res.message);
+          this.showAlert(res.message, 'success');
           this.inviteCode = '';
           this.loadDashboardData();
         },
         error: (err) => {
           console.error(err);
-          alert(err.error?.message || 'Hiba történt a csatlakozáskor!');
-        }
+          this.showAlert(err.error?.message || 'Hiba történt a csatlakozáskor!', 'error');        }
       });
+  }
+
+  showAlert(message: string, type: 'success' | 'warning' | 'error') {
+    this.alertMessage = message;
+    this.alertType = type;
+    setTimeout(() => {
+      this.alertMessage = '';
+    }, 4000);
+  }
+
+  closeAlert() {
+    this.alertMessage = '';
   }
 }

@@ -25,10 +25,29 @@
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin-left: 10px;
 }
 
 .btn-logout:hover {
   background: rgba(255, 77, 77, 0.5);
+  color: white;
+  box-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
+}
+
+.btn-profile {
+  padding: 8px 20px;
+  background: rgba(204, 161, 44,0.2);
+  border: 1px solid rgba(204, 161, 44,0.5);
+  border-radius: 8px;
+  color: #cfb15c;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 10px;
+}
+
+.btn-profile:hover {
+  background: rgba(204, 161, 44,0.5);
   color: white;
   box-shadow: 0 0 10px rgba(255, 77, 77, 0.3);
 }

@@ -17,64 +17,18 @@ class AuthController extends Controller
 {
     public function login_store(LoginRequest $request)
     {
-        if(Auth::attempt($request->validated()))
-        {
+        if (Auth::attempt($request->validated())) {
             $user = Auth::user();
-            $courses = CoursesModel::all();
-            $assigment = AssignmentModel::all();
-            $average = DB::table('assignment')->avg('assignment_grade');
-            
-            $grades = [];
-            $ass_perc_arr = [];
-            $ass_perc_suc = 0;
-            $ass_perc_fai = 0;
-            $ass_perc_out = 0;
-            $ass_perc_nye = 0;
-            $ass_perc = 0;
-
-            foreach ($assigment as $item) {
-                if($item->user_username == $user->username){
-                    $grades[] = $item->assignment_grade;
-                    $ass_perc_arr[] = $item->assignment_finnished;
-                }
-            }
-            if(count($ass_perc_arr) > 0){
-                for ($i=0; $i < count($ass_perc_arr); $i++) {
-                    if($ass_perc_arr[$i] == 2){ $ass_perc_suc++; }
-                    elseif($ass_perc_arr[$i] == 1){ $ass_perc_fai++; }
-                    elseif($ass_perc_arr[$i] == 0){ $ass_perc_nye++; }
-                }
-                $ass_perc = ($ass_perc_suc / count($ass_perc_arr))*100;
-            } else {
-                $ass_perc = 0;
-            }
-
-            if(count($grades) != 0){
-                $average = array_sum($grades) / count($grades);
-            } else {
-                $average = 0;
-            }
-
             $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
                 'status' => 'Siker',
                 'token' => $token,
                 'user' => $user,
-                'stats' => [
-                    'courses' => $courses,
-                    'assigment' => $assigment,
-                    'average' => $average,
-                    'ass_perc' => $ass_perc,
-                    'ass_perc_suc' => $ass_perc_suc,
-                    'ass_perc_fai' => $ass_perc_fai,
-                    'ass_perc_out' => $ass_perc_out,
-                    'ass_perc_nye' => $ass_perc_nye,
-                ]
+                'message' => 'Sikeres bejelentkezés!'
             ], 200);
-        }
-        else
-        {
+        } 
+        else {
             return response()->json([
                 'status' => 'Hiba',
                 'message' => 'Hibás felhasználónév vagy jelszó!'
@@ -86,7 +40,7 @@ class AuthController extends Controller
     {
         $adatok = $request->validated();
         do {
-            $username = strtoupper(\Illuminate\Support\Str::random(5));
+            $username = strtoupper(\Illuminate\Support\Str::random(4));
             $exists = \App\Models\User::where('username', $username)->exists();
         } while ($exists);
         $user = User::create([
@@ -102,5 +56,22 @@ class AuthController extends Controller
             'message' => 'Sikeres regisztráció!',
             'username' => $username
         ], 201);
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            $request->user()->currentAccessToken()->delete();
+
+            return response()->json([
+                'status' => 'Siker',
+                'message' => 'Sikeres kijelentkezés!'
+            ], 200);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Hiba történt a kijelentkezés során.'
+            ], 500);
+        }
     }
 }

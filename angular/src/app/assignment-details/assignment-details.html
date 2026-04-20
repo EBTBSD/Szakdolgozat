@@ -2,109 +2,111 @@
   
   <div class="course-header glass-panel">
     <button class="btn-back" (click)="goBack()">← Vissza</button>
-      <div style="margin-top: 20px; display: flex; gap: 10px;">
-    <button class="btn-primary" (click)="toggleEdit()">Szerkesztés</button>
-    <button style="background-color: tomato; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;" (click)="deleteAssignment()">🗑️ Törlés</button>
-  </div>
-  <div class="glass-panel" *ngIf="isEditing" style="margin-top: 20px; padding: 20px;">
-    <h3>Feladat Módosítása</h3>
-    <form (ngSubmit)="saveChanges()">
-      
-      <div class="form-group mb-3">
-        <label>Feladat Neve:</label>
-        <input type="text" class="form-control" name="name" [(ngModel)]="assignment.assignment_name" required>
-      </div>
+    
+    <div class="header-action-buttons">
+      <button class="btn-primary" (click)="toggleEdit()">Szerkesztés</button>
+      <button class="btn-delete" (click)="deleteAssignment()">🗑️ Törlés</button>
+    </div>
 
-      <div class="form-group mb-3">
-        <label>Max Pontszám:</label>
-        <input type="number" class="form-control" name="max_point" [(ngModel)]="assignment.assignment_max_point" required>
-      </div>
+    <div class="glass-panel" *ngIf="isEditing" style="margin-top: 20px; padding: 20px;">
+      <h3>Feladat Módosítása</h3>
+      <form (ngSubmit)="saveChanges()">
+        <div class="form-group mb-3">
+          <label>Feladat Neve:</label>
+          <input type="text" class="input-glass form-control" name="name" [(ngModel)]="assignment.assignment_name" required>
+        </div>
+        <div class="form-group mb-3">
+          <label>Max Pontszám:</label>
+          <input type="number" class="input-glass form-control" name="max_point" [(ngModel)]="assignment.assignment_max_point" required>
+        </div>
+        <div class="form-group mb-3">
+          <label>Határidő:</label>
+          <input type="datetime-local" class="input-glass form-control" name="deadline" [(ngModel)]="assignment.assignment_deadline" required>
+        </div>
+        <div class="form-group mb-3">
+          <label>Láthatóság:</label>
+          <select class="input-glass form-control" name="accessible" [(ngModel)]="assignment.assignment_accessible" required>
+            <option [value]="1">Igen (Látható)</option>
+            <option [value]="0">Nem (Rejtett)</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-primary">Változtatások Mentése</button>
+        <button type="button" class="btn-back" style="margin-left: 10px;" (click)="toggleEdit()">Mégsem</button>
+      </form>
+    </div>
 
-      <div class="form-group mb-3">
-        <label>Határidő:</label>
-        <input type="datetime-local" class="form-control" name="deadline" [(ngModel)]="assignment.assignment_deadline" required>
-      </div>
-
-      <div class="form-group mb-3">
-        <label>Láthatóság:</label>
-        <select class="form-control" name="accessible" [(ngModel)]="assignment.assignment_accessible" required>
-          <option [value]="1">Igen (Látható)</option>
-          <option [value]="0">Nem (Rejtett)</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn-primary">Változtatások Mentése</button>
-      <button type="button" class="btn-back" (click)="toggleEdit()">Mégsem</button>
-    </form>
-  </div>
     <div class="header-title">
       <h2>{{ assignment.assignment_name }}</h2>
       <span class="badge">{{ assignment.assignment_type }}</span>
     </div>
   </div>
+
   <div class="glass-panel" style="margin-top: 30px; padding: 20px;">
     <h3>📊 Hallgatók Eredményei</h3>
     <hr>
     
-    <table *ngIf="submissions.length > 0" style="width: 100%; text-align: left; border-collapse: collapse;">
+    <table class="students-table" *ngIf="submissions.length > 0">
       <thead>
-        <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
-          <th style="padding: 10px;">Diák Neve</th>
-          <th style="padding: 10px;">Állapot</th>
-          <th style="padding: 10px;">Pontszám</th>
-          <th style="padding: 10px;">Érdemjegy</th>
+        <tr>
+          <th>Diák Neve</th>
+          <th>Állapot</th>
+          <th>Pontszám</th>
+          <th>Érdemjegy</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let sub of submissions" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-          <td style="padding: 10px;">{{ sub.user?.username }}</td>
-          <td style="padding: 10px;">
-            <span *ngIf="sub.status === 1" style="color: limegreen;">Beküldve</span>
-            <span *ngIf="sub.status === 0" style="color: orange;">Folyamatban</span>
+        <tr *ngFor="let sub of submissions">
+          <td>{{ sub.user?.username }}</td>
+          <td>
+            <span *ngIf="sub.status === 1" class="status-green">Beküldve</span>
+            <span *ngIf="sub.status === 0" class="status-orange">Folyamatban</span>
           </td>
-          <td style="padding: 10px;">{{ sub.achieved_points }} / {{ assignment?.assignment_max_point }}</td>
-          <td style="padding: 10px; font-weight: bold;">{{ sub.grade ? sub.grade : '-' }}</td>
+          <td>{{ sub.achieved_points }} / {{ assignment?.assignment_max_point }}</td>
+          <td style="font-weight: bold;">{{ sub.grade ? sub.grade : '-' }}</td>
         </tr>
       </tbody>
     </table>
 
-    <p *ngIf="submissions.length === 0" style="text-align: center; color: #ccc; margin-top: 20px;">
+    <p *ngIf="submissions.length === 0" class="empty-message">
       Még egyetlen hallgató sem töltötte ki a feladatot.
     </p>
   </div>
+
   <div class="glass-panel" style="margin-top: 20px; padding: 20px;">
     <h3>A feladat részletei</h3>
     <hr>
-    <p><b>Határidő:</b> {{ assignment.assignment_deadline }}</p>
-    <p><b>Maximális Pontszám:</b> {{ assignment.assignment_max_point }} pont</p>
-    <p><b>Láthatóság a diákoknak:</b> 
-      <span *ngIf="assignment.assignment_accessible == 1" style="color: limegreen;">Látható</span>
-      <span *ngIf="assignment.assignment_accessible == 0" style="color: tomato;">Rejtett</span>
+    <p class="detail-row"><b>Határidő:</b> {{ assignment.assignment_deadline }}</p>
+    <p class="detail-row"><b>Maximális Pontszám:</b> {{ assignment.assignment_max_point }} pont</p>
+    <p class="detail-row"><b>Láthatóság a diákoknak:</b> 
+      <span *ngIf="assignment.assignment_accessible == 1" class="status-green">Látható</span>
+      <span *ngIf="assignment.assignment_accessible == 0" class="status-red">Rejtett</span>
     </p>
   </div>
+
   <div class="glass-panel" style="margin-top: 30px; padding: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="flex-row-between">
       <h3>📝 Feladat Kérdései</h3>
       <button class="btn-primary" (click)="toggleAddQuestion()">+ Új Kérdés</button>
     </div>
     <hr>
 
     <div *ngIf="questions.length > 0">
-      <div *ngFor="let q of questions; let i = index" style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      <div *ngFor="let q of questions; let i = index" class="question-block">
+        <div class="flex-row-between" style="align-items: flex-start;">
           <p><b>{{ i + 1 }}. Kérdés ({{ q.question_points }} pont):</b></p>
-          <button style="background: transparent; color: tomato; border: 1px solid tomato; border-radius: 4px; cursor: pointer; padding: 2px 6px; font-size: 12px;" (click)="deleteQuestion(q.id)">🗑️ Kérdés törlése</button>
+          <button class="btn-outline-red" (click)="deleteQuestion(q.id)">🗑️ Kérdés törlése</button>
         </div>
         <p>{{ q.question_text }}</p>
         <small style="color: #ddd;">Típus: {{ q.question_type === 'essay' ? 'Kifejtős' : 'Feleletválasztós' }}</small>
-        <ul *ngIf="q.answers && q.answers.length > 0" style="list-style-type: none; padding-left: 0; margin-top: 10px;">
-        <li *ngFor="let a of q.answers" [ngStyle]="{'color': a.is_correct ? 'limegreen' : 'inherit'}" style="display: flex; justify-content: space-between; padding: 5px; background: rgba(0,0,0,0.1); margin-bottom: 3px; border-radius: 4px;">
+        
+        <ul *ngIf="q.answers && q.answers.length > 0" class="answer-list">
+          <li *ngFor="let a of q.answers" class="answer-item" [ngClass]="{'correct-answer-text': a.is_correct}">
             <span>
               <span *ngIf="a.is_correct">✔️</span>
               <span *ngIf="!a.is_correct">❌</span>
               {{ a.answer_text }}
             </span>
-            <span style="cursor: pointer; color: tomato;" (click)="deleteAnswer(q.id, a.id)">🗑️</span>
+            <span class="icon-trash" (click)="deleteAnswer(q.id, a.id)">🗑️</span>
           </li>
         </ul>
 
@@ -112,47 +114,43 @@
           + Válaszlehetőség hozzáadása
         </button>
 
-        <div *ngIf="activeQuestionIdForAnswer === q.id" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 5px; margin-top: 10px;">
+        <div *ngIf="activeQuestionIdForAnswer === q.id" class="add-answer-box">
           <div class="form-group mb-2">
             <label>Válasz szövege:</label>
-            <input type="text" class="form-control" name="a_text" [(ngModel)]="newAnswer.answer_text" required>
+            <input type="text" class="input-glass form-control" name="a_text" [(ngModel)]="newAnswer.answer_text" required>
           </div>
           <div class="form-group mb-2">
-            <label style="cursor: pointer; display: flex; align-items: center; gap: 10px;">
-              <input type="checkbox" name="a_correct" [(ngModel)]="newAnswer.is_correct" style="width: 20px; height: 20px;"> 
+            <label class="checkbox-container">
+              <input type="checkbox" name="a_correct" [(ngModel)]="newAnswer.is_correct"> 
               <b>Ez a helyes válasz?</b>
             </label>
           </div>
           <button class="btn-primary" style="padding: 5px 10px; font-size: 12px;" (click)="saveNewAnswer(q.id)">Mentés</button>
-          <button class="btn-back" style="padding: 5px 10px; font-size: 12px;" (click)="toggleAddAnswer(q.id)">Mégsem</button>
+          <button class="btn-back" style="padding: 5px 10px; font-size: 12px; margin-left: 5px;" (click)="toggleAddAnswer(q.id)">Mégsem</button>
         </div>
       </div>
     </div>
-    <p *ngIf="questions.length === 0" style="text-align: center; color: #ccc;">Még nincsenek kérdések ehhez a feladathoz.</p>
+    <p *ngIf="questions.length === 0" class="empty-message">Még nincsenek kérdések ehhez a feladathoz.</p>
 
-    <div *ngIf="isAddingQuestion" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-top: 15px;">
+    <div *ngIf="isAddingQuestion" class="add-question-box">
       <h4>Új Kérdés Felvitele</h4>
       <form (ngSubmit)="saveNewQuestion()">
-        
         <div class="form-group mb-3">
           <label>Kérdés szövege:</label>
-          <textarea class="form-control" name="q_text" [(ngModel)]="newQuestion.question_text" rows="3" required></textarea>
+          <textarea class="input-glass form-control" name="q_text" [(ngModel)]="newQuestion.question_text" rows="3" required></textarea>
         </div>
-
         <div class="form-group mb-3">
           <label>Típus:</label>
-          <select class="form-control" name="q_type" [(ngModel)]="newQuestion.question_type" required>
+          <select class="input-glass form-control" name="q_type" [(ngModel)]="newQuestion.question_type" required>
             <option value="multiple_choice">Feleletválasztós</option>
           </select>
         </div>
-
         <div class="form-group mb-3">
           <label>Érhető Pontszám:</label>
-          <input type="number" class="form-control" name="q_points" [(ngModel)]="newQuestion.question_points" min="1" required>
+          <input type="number" class="input-glass form-control" name="q_points" [(ngModel)]="newQuestion.question_points" min="1" required>
         </div>
-
         <button type="submit" class="btn-primary">Mentés</button>
-        <button type="button" class="btn-back" (click)="toggleAddQuestion()">Mégsem</button>
+        <button type="button" class="btn-back" style="margin-left: 10px;" (click)="toggleAddQuestion()">Mégsem</button>
       </form>
     </div>
   </div>
@@ -162,4 +160,8 @@
   <div class="glass-panel" style="text-align: center; padding: 40px;">
     <h2>Adatok betöltése...</h2>
   </div>
+</div>
+
+<div *ngIf="notificationMessage" class="glass-panel toast-message" [ngClass]="isNotificationSuccess ? 'toast-success' : 'toast-error'">
+  {{ notificationMessage }}
 </div>

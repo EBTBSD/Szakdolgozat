@@ -6,3 +6,45 @@ body {
     color: white;
     min-height: 100vh;
 }
+
+.custom-alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 15px 25px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: white;
+    font-weight: bold;
+    animation: slideIn 0.3s ease-out forwards;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.custom-alert.success { 
+    border-left: 5px solid #4caf50; 
+}
+.custom-alert.error { 
+    border-left: 5px solid #ff5252;
+}
+.custom-alert.warning { 
+    border-left: 5px solid #ffeb3b;
+    color: #fff;
+}
+.close-alert-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+  }
+.close-alert-btn:hover {
+    color: #ff5252; 
+}
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}

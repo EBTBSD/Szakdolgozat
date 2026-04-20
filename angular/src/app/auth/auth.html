@@ -12,20 +12,32 @@
     </div>
 
     <div class="div_reg_auth glass-panel">
-        <h2>Regisztráció</h2>
-        <form (ngSubmit)="onRegister()">
+        <h2>Regisztráció</h2>          
+        <form *ngIf="!isRegisterSuccess" (ngSubmit)="onRegister()">
             <div class="input-row">
                 <input class="input_auth half-width" type="text" name="lastname" [(ngModel)]="registerData.lastname" placeholder="Vezetéknév" required/>
                 <input class="input_auth half-width" type="text" name="firstname" [(ngModel)]="registerData.firstname" placeholder="Keresztnév" required/>
             </div>
             
             <input class="input_auth" type="email" name="email" [(ngModel)]="registerData.email" placeholder="Email" required/>
+            <div *ngIf="backendErrors['email']" style="color: red; font-size: 15px;">
+                <div *ngFor="let err of backendErrors['email']"><b>{{ err }}</b></div>
+            </div>
             <input class="input_auth" type="password" name="password" [(ngModel)]="registerData.password" placeholder="Jelszó" required/>
-            <input class="input_auth" type="password" name="password_again" [(ngModel)]="registerData.password_again" placeholder="Jelszó Újra" required/>
+            <input class="input_auth" type="password" name="password_confirmation" [(ngModel)]="registerData.password_confirmation" placeholder="Jelszó Újra" required/>
+            <div *ngIf="backendErrors['password']" style="color: red; font-size: 15px;">
+                <div *ngFor="let err of backendErrors['password']"><b>{{ err }}</b></div>
+            </div>
             <button class="button_auth" type="submit">Regisztrálás</button>
         </form>
-        <div *ngIf="registerMessage" class="message-box" [ngClass]="{'error': isRegisterError, 'success': !isRegisterError}">
-            {{ registerMessage }}
+        <div *ngIf="isRegisterSuccess" style="font-size: 15px; text-align: justify;">
+  
+            <h2 style="color: #4BB543; margin-top: 0;">Sikeres regisztráció!</h2>
+            <p>A fiókod sikeresen elkészült. Kérlek, írd fel magadnak a felhasználónevedet, mert a jövőben ezzel tudsz majd bejelentkezni:</p>
+            
+            <div style="font-size: 2rem; font-weight: bold; letter-spacing: 2px; margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+              {{ generatedUsername }}
+            </div>
         </div>
     </div>
 </div>

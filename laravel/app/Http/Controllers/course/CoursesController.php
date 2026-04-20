@@ -6,7 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\CoursesModel;
 use App\Models\AssignmentModel;
+use App\Http\Models\ModuleModel;
 use App\Http\Requests\newCourseRequest;
+use App\Http\Requests\AssignmentRequest;
+use App\Http\Requests\MaterialRequest;
+use App\Http\Requests\QuestionRequest;
+use App\Http\Requests\AnswerRequest;
+use App\Http\Requests\JoinCourseRequest;
+
 use Illuminate\Support\Str;
 
 class CoursesController extends Controller
@@ -14,99 +21,77 @@ class CoursesController extends Controller
     public function newCourse(newCourseRequest $request)
     {
         $adatok = $request->validated();
-        $adatok['creator_username'] = $request->user()->username;
-        $adatok['invite_code'] = strtoupper(\Illuminate\Support\Str::random(6));
-        $course = \App\Models\CoursesModel::create($adatok);
-        if (!empty($adatok['course_users'])) {
-            $users = explode(',', $adatok['course_users']);
-            foreach ($users as $user) {
-                $user = trim($user); 
-                if (!empty($user)) {
-                    \App\Models\AssignmentModel::create([
-                        'course_id' => $course->id,
-                        'user_username' => $user
-                    ]);
-                }
-            }
-        }
+        $adatok['creator_id'] = $request->user()->id;
+        $adatok['invite_code'] = strtoupper(Str::random(6));
+        $course = \App\Models\CoursesModel::create([
+            'creator_id' => $adatok['creator_id'],
+            'course_name' => $adatok['course_name'],
+            'course_type' => $adatok['course_type'],
+            'course_img_path' => $adatok['course_img_path'] ?? '/images/default.jpg',
+            'invite_code' => $adatok['invite_code']
+        ]);
+
         return response()->json([
             'status' => 'Siker',
-            'message' => 'A kurzus sikeresen létrejött!'
+            'message' => 'A kurzus sikeresen létrejött!',
+            'course' => $course
         ], 201);
     }
-
-    public function joinCourseWithCode(Request $request)
+    public function joinCourseWithCode(JoinCourseRequest $request)
     {
-        $request->validate(['invite_code' => 'required|string']);
         $user = $request->user();
-        $course = \App\Models\CoursesModel::where('invite_code', $request->invite_code)->first();
-        if (!$course) {
-            return response()->json(['message' => 'Érvénytelen meghívó kód!'], 404);
+        $course = \App\Models\CoursesModel::where('invite_code', $request->invite_code)->first();        if (!$course) {
+            return response()->json(['message' => 'Hibás kód!'], 404);
         }
         $usersArray = $course->course_users ? explode(',', $course->course_users) : [];
 
-        if (in_array($user->username, $usersArray)) {
+        if (!$course) {
+            return response()->json(['message' => 'Hibás kód vagy a kurzus nem létezik!'], 404);
+        }
+        if ($course->userss()->where('user_id', $user->id)->exists()) {
             return response()->json(['message' => 'Már csatlakoztál ehhez a kurzushoz!'], 400);
         }
-        $usersArray[] = $user->username;
-        $course->course_users = implode(',', array_filter($usersArray));
-        $course->save();
-
+        $course->userss()->attach($user->id);
         return response()->json(['message' => 'Sikeresen csatlakoztál a kurzushoz!'], 200);
     }
-
-    public function getCourseDetails(Request $request, $id)
+    public function getCourseDetails(Request $request, $id) 
     {
-        $user = $request->user();
         $course = \App\Models\CoursesModel::find($id);
-        if (!$course) {
-            return response()->json(['message' => 'A kurzus nem található!'], 404);
-        }
         
-        $assignments = \App\Models\AssignmentModel::where('course_id', $id)->get();
+        if (!$course) {
+            return response()->json(['message' => 'Nincs ilyen kurzus'], 404);
+        }
 
-        $is_teacher = ($course->creator_username === $user->username);
+        $modules = \App\Models\ModuleModel::with(['assignments', 'materials'])
+                    ->where('course_id', $id)
+                    ->orderBy('order_index')
+                    ->get();
+
+        $user = $request->user();
+        $is_teacher = ($course->creator_id === $user->id);
 
         return response()->json([
             'status' => 'Siker',
             'course' => $course,
-            'assignments' => $assignments,
-            'is_teacher' => $is_teacher
+            'modules' => $modules,
+            'is_teacher' => $is_teacher,
+            'debug' => [
+                'eltarolt_keszito_id' => $course->creator_id,
+                'jelenlegi_felhasznalo_id' => $user->id
+            ]
         ], 200);
     }
-
-    public function newAssignment(Request $request, $id)
+    public function newAssignment(AssignmentRequest $request, $moduleId)
     {
-        $request->validate([
-            'assignment_name' => 'required|string',
-            'assignment_type' => 'required|string',
-            'assignment_max_point' => 'required|integer',
-            'assignment_deadline' => 'required|date',
-            'assignment_accessible' => 'required'
-        ]);
+        $module = \App\Models\ModuleModel::find($moduleId);
+        if (!$module) return response()->json(['message' => 'A modul nem található!'], 404);
 
-        $course = \App\Models\CoursesModel::find($id);
-        if (!$course) {
-            return response()->json(['message' => 'A kurzus nem található!'], 404);
-        }
-        \App\Models\AssignmentModel::create([
-            'course_id' => $id,
-            'assignment_name' => $request->assignment_name,
-            'assignment_type' => $request->assignment_type,
-            'assignment_max_point' => $request->assignment_max_point,
-            'assignment_succed_point' => 0,
-            'assignment_grade' => 0,
-            'assignment_finnished' => 0,
-            'assignment_deadline' => $request->assignment_deadline,
-            'assignment_accessible' => $request->assignment_accessible,
-            'user_username' => $request->user()->username, 
-            'creator_username' => $request->user()->username
-        ]);
+        \App\Models\AssignmentModel::create(array_merge(
+            $request->validated(), 
+            ['module_id' => $moduleId]
+        ));
 
-        return response()->json([
-            'status' => 'Siker',
-            'message' => 'A feladat sikeresen kiírva!'
-        ], 201);
+        return response()->json(['status' => 'Siker', 'message' => 'A feladat sikeresen kiírva!'], 201);
     }
 
     public function getAssignmentDetails(Request $request, $id)
@@ -131,30 +116,14 @@ class CoursesController extends Controller
         return response()->json(['message' => 'A feladat sikeresen törölve!'], 200);
     }
 
-    public function updateAssignment(Request $request, $id)
+    public function updateAssignment(AssignmentRequest $request, $id)
     {
         $assignment = \App\Models\AssignmentModel::find($id);
-        if (!$assignment) {
-            return response()->json(['message' => 'A feladat nem található!'], 404);
-        }
-        $request->validate([
-            'assignment_name' => 'required|string',
-            'assignment_type' => 'required|string',
-            'assignment_max_point' => 'required|integer',
-            'assignment_deadline' => 'required|date',
-            'assignment_accessible' => 'required'
-        ]);
-        $assignment->update([
-            'assignment_name' => $request->assignment_name,
-            'assignment_type' => $request->assignment_type,
-            'assignment_max_point' => $request->assignment_max_point,
-            'assignment_deadline' => $request->assignment_deadline,
-            'assignment_accessible' => $request->assignment_accessible,
-        ]);
-        return response()->json([
-            'message' => 'Feladat sikeresen frissítve!', 
-            'assignment' => $assignment
-        ], 200);
+        if (!$assignment) return response()->json(['message' => 'A feladat nem található!'], 404);
+
+        $assignment->update($request->validated());
+
+        return response()->json(['message' => 'Feladat sikeresen frissítve!', 'assignment' => $assignment], 200);
     }
 
     public function getQuestions($id)
@@ -163,33 +132,21 @@ class CoursesController extends Controller
         return response()->json(['questions' => $questions], 200);
     }
 
-    public function addQuestion(Request $request, $id)
+    public function addQuestion(QuestionRequest $request, $id)
     {
-        $request->validate([
-            'question_text' => 'required|string',
-            'question_type' => 'required|string',
-            'question_points' => 'required|integer|min:1'
-        ]);
-        $question = \App\Models\QuestionModel::create([
-            'assignment_id' => $id,
-            'question_text' => $request->question_text,
-            'question_type' => $request->question_type,
-            'question_points' => $request->question_points
-        ]);
+        $question = \App\Models\QuestionModel::create(array_merge(
+            $request->validated(),
+            ['assignment_id' => $id]
+        ));
         return response()->json(['message' => 'Kérdés hozzáadva!', 'question' => $question], 201);
     }
 
-    public function addAnswer(Request $request, $id)
+    public function addAnswer(AnswerRequest $request, $id)
     {
-        $request->validate([
-            'answer_text' => 'required|string',
-            'is_correct' => 'required|boolean'
-        ]);
-        $answer = \App\Models\AnswerModel::create([
-            'question_id' => $id,
-            'answer_text' => $request->answer_text,
-            'is_correct' => $request->is_correct
-        ]);
+        $answer = \App\Models\AnswerModel::create(array_merge(
+            $request->validated(),
+            ['question_id' => $id]
+        ));
         return response()->json(['message' => 'Válasz hozzáadva!', 'answer' => $answer], 201);
     }
 
@@ -275,7 +232,7 @@ class CoursesController extends Controller
         try {
             $user = $request->user();
             if (!$user) {
-                return response()->json(['message' => 'Hiba: Nem vagy bejelentkezve! Ellenőrizd, hogy a route az api.php-ban az auth:sanctum csoporton belül van-e!'], 401);
+                return response()->json(['message' => 'Hiba: Nem vagy bejelentkezve!'], 401);
             }
             $existing = \App\Models\SubmissionModel::where('assignment_id', $id)
                             ->where('user_id', $user->id)
@@ -289,7 +246,6 @@ class CoursesController extends Controller
             $achievedPoints = 0;
 
             $questions = \App\Models\QuestionModel::where('assignment_id', $id)->get();
-
             foreach ($questions as $question) {
                 $correctAnswer = \App\Models\AnswerModel::where('question_id', $question->id)
                                     ->where('is_correct', 1)
@@ -301,7 +257,6 @@ class CoursesController extends Controller
                     }
                 }
             }
-
             $assignment = \App\Models\AssignmentModel::find($id);
             if (!$assignment) {
                 return response()->json(['message' => 'Hiba: Ez a feladat nem található!'], 404);
@@ -310,9 +265,7 @@ class CoursesController extends Controller
             if (\Carbon\Carbon::now()->greaterThan($deadline)) {
                 return response()->json(['message' => 'Sajnos időközben lejárt a feladat beküldési határideje!'], 400);
             }
-
             $maxPoints = $assignment->assignment_max_point;
-            
             $grade = 1;
             if ($maxPoints > 0) {
                 $percentage = ($achievedPoints / $maxPoints) * 100;
@@ -322,13 +275,13 @@ class CoursesController extends Controller
                 elseif ($percentage >= 50) { $grade = 2; }
                 else { $grade = 1; }
             }
+            $autoFeedback = "A rendszer automatikusan kiértékelte. Százalék: " . round($percentage ?? 0) . "%. Ajánlott jegy: " . $grade;
 
             $submission = \App\Models\SubmissionModel::create([
                 'assignment_id' => $id,
                 'user_id' => $user->id,
                 'achieved_points' => $achievedPoints,
-                'grade' => $grade,
-                'status' => 1
+                'teacher_feedback' => $autoFeedback
             ]);
 
             return response()->json([
@@ -342,5 +295,39 @@ class CoursesController extends Controller
                 'message' => 'Rendszerhiba: ' . $e->getMessage() . ' (Sor: ' . $e->getLine() . ')'
             ], 500);
         }
+    }
+
+    public function uploadMaterial(MaterialRequest $request, $moduleId)
+    {
+        $module = \App\Models\ModuleModel::with('course')->find($moduleId);
+        if (!$module) return response()->json(['message' => 'Modul nem található'], 404);
+
+        if ($module->course->creator_username !== $request->user()->username) {
+            return response()->json(['message' => 'Nincs jogosultságod!'], 403);
+        }
+
+        $file = $request->file('file');
+        \App\Models\MaterialModel::create([
+            'module_id' => $moduleId,
+            'file_name' => $file->getClientOriginalName(),
+            'file_path' => $file->store('materials', 'public')
+        ]);
+
+        return response()->json(['message' => 'Fájl sikeresen feltöltve!'], 201);
+    }
+    public function newModule(Request $request, $courseId)
+    {
+        $request->validate([
+            'module_title' => 'required|string|max:255'
+        ]);
+        $orderIndex = \App\Models\ModuleModel::where('course_id', $courseId)->count() + 1;
+
+        \App\Models\ModuleModel::create([
+            'course_id' => $courseId,
+            'module_title' => $request->module_title,
+            'order_index' => $orderIndex
+        ]);
+
+        return response()->json(['message' => 'Új hét (modul) sikeresen létrehozva!'], 201);
     }
 }

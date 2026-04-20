@@ -13,8 +13,8 @@ public function up()
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('assignment_id')->constrained('assignment')->onDelete('cascade'); 
-            $table->text('question_text');
+            $table->unsignedBigInteger('assignment_id');
+            $table->foreign('assignment_id')->references('id')->on('assignments')->onDelete('cascade');            $table->text('question_text');
             $table->string('question_type');
             $table->integer('question_points')->default(1);            
             $table->timestamps();

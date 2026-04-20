@@ -1,19 +1,4 @@
-body {
-    background: linear-gradient(135deg, #1f4037, #99f2c8);
-    background-size: 400% 400%;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: white;
-    min-height: 100vh;
-    margin: 0;
-}
-.div_auth {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 40px;
-    padding: 60px 20px;
-}
+
 .glass-panel {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(12px);
@@ -33,6 +18,14 @@ body {
     text-align: center;
     text-transform: uppercase;
     letter-spacing: 2px;
+}
+.div_auth {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 60px 20px;
 }
 
 .input_auth {

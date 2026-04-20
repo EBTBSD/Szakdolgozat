@@ -1,4 +1,10 @@
 <app-navbar></app-navbar>
+
+<div *ngIf="alertMessage" class="custom-alert glass-panel" [ngClass]="alertType">
+  <span>{{ alertMessage }}</span>
+  <button class="close-alert-btn" (click)="closeAlert()">&times;</button>
+</div>
+
 <div class="dashboard-wrapper">
   
   <aside class="sidebar glass-panel">
@@ -16,7 +22,7 @@
         Csatlakozás 🚀
       </button>
     
-    </div>
+    </div> 
     <div class="course-list">
       <div class="course-card" *ngFor="let item of courses" 
            [style.backgroundImage]="'url(' + item.course_img_path + ')'"
